@@ -1,0 +1,1354 @@
+<title>Core POS App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap">
+<style>
+/* Core POS app
+   Layout: a stage that shows the app inside a phone or tablet frame next to demo controls;
+   on a real phone the frame drops away and the app fills the screen.
+   Inside the app: header, scrolling content, and a bottom tab bar or action bar. Touch targets ≥ 44px. */
+:root {
+  --bg: #e9eeec;            /* stage */
+  --app: #f6f8f7;           /* app ground */
+  --surface: #ffffff;
+  --surface-2: #f0f4f2;
+  --line: #dde3e0;
+  --line-strong: #c4cdc9;
+  --fg: #14211d;
+  --fg-2: #4a5853;
+  --fg-3: #75837e;
+  --accent: #0d6b57;
+  --accent-ink: #ffffff;
+  --accent-soft: #e2f1ec;
+  --amber: #b45f06;
+  --amber-soft: #fbefe1;
+  --good: #13804a; --good-soft: #e3f4ea;
+  --warn: #a86300; --warn-soft: #fdf1dc;
+  --bad: #c03a2b;  --bad-soft: #fbe7e4;
+  --info: #2a62b8; --info-soft: #e5eefb;
+  --ink: #0f1c19;           /* frame & dark chrome */
+  --shadow: 0 1px 2px rgba(15, 28, 25, .06), 0 10px 30px rgba(15, 28, 25, .10);
+  --font: "Schibsted Grotesk", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #070d0b; --app: #0d1513; --surface: #142019; --surface-2: #1a2822; --line: #24342e; --line-strong: #33463f;
+    --fg: #e6eeea; --fg-2: #a9b8b2; --fg-3: #7b8c86; --accent: #3fbf9a; --accent-ink: #06231b; --accent-soft: #173a30;
+    --amber: #f0a548; --amber-soft: #3a2a14; --good: #4cc887; --good-soft: #143426; --warn: #f0b04a; --warn-soft: #3a2c12;
+    --bad: #f07a6c; --bad-soft: #3d1c18; --info: #79a8f0; --info-soft: #182a45; --ink: #000000;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #070d0b; --app: #0d1513; --surface: #142019; --surface-2: #1a2822; --line: #24342e; --line-strong: #33463f;
+  --fg: #e6eeea; --fg-2: #a9b8b2; --fg-3: #7b8c86; --accent: #3fbf9a; --accent-ink: #06231b; --accent-soft: #173a30;
+  --amber: #f0a548; --amber-soft: #3a2a14; --good: #4cc887; --good-soft: #143426; --warn: #f0b04a; --warn-soft: #3a2c12;
+  --bad: #f07a6c; --bad-soft: #3d1c18; --info: #79a8f0; --info-soft: #182a45; --ink: #000000;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.45 var(--font); -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { margin: 0; font-weight: 650; letter-spacing: -.01em; text-wrap: balance; }
+p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.mono { font-family: var(--mono); font-size: .88em; }
+.num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--fg-3); }
+.small { font-size: 13px; }
+.eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .09em; color: var(--fg-3); font-weight: 650; }
+.up { color: var(--good); } .down { color: var(--bad); }
+
+/* ---------- Stage (desktop viewer) ---------- */
+.stage { min-height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 28px; padding: 28px 28px; align-items: start; max-width: 1560px; margin: 0 auto; }
+.stage-device { display: grid; place-items: start center; min-width: 0; }
+.frame { background: var(--ink); border-radius: 46px; padding: 12px; box-shadow: var(--shadow); width: 414px; height: 868px; position: relative; max-width: 100%; }
+.frame::before { content: ""; position: absolute; top: 20px; left: 50%; width: 96px; height: 26px; margin-left: -48px; border-radius: 20px; background: #000; z-index: 5; }
+.frame.tablet { width: min(1100px, 100%); height: 780px; border-radius: 30px; padding: 16px; }
+.frame.tablet::before { display: none; }
+.screen { width: 100%; height: 100%; border-radius: 36px; overflow: hidden; background: var(--app); position: relative; container-type: inline-size; container-name: screen; display: flex; flex-direction: column; }
+.frame.tablet .screen { border-radius: 16px; }
+.status-bar { height: 44px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 6px 28px 0; font-size: 13px; font-weight: 650; }
+.frame.tablet .status-bar { height: 28px; padding: 0 18px; }
+
+.panel-side { display: grid; gap: 16px; position: sticky; top: 28px; }
+.side-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 12px; }
+.side-card h2 { font-size: 15px; }
+.side-title { display: flex; gap: 10px; align-items: center; }
+.side-title .logo { width: 34px; height: 34px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font: 600 13px var(--mono); }
+.side-title b { display: block; font-size: 15px; }
+.side-title span { font-size: 12px; color: var(--fg-3); }
+.seg { display: flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 2px; }
+.seg button { flex: 1; border: 0; background: transparent; padding: 7px 8px; border-radius: 7px; font-size: 13px; font-weight: 600; color: var(--fg-2); }
+.seg button.on { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.jump { display: flex; flex-wrap: wrap; gap: 6px; }
+.jump button { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 999px; padding: 4px 10px; font-size: 12.5px; }
+.jump button:hover { border-color: var(--accent); color: var(--accent); }
+.side-note { font-size: 12.5px; color: var(--fg-2); }
+
+/* ---------- App chrome ---------- */
+.app { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+.banner { flex: none; padding: 6px 16px; font-size: 12.5px; font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.banner.offline { background: var(--amber-soft); color: var(--amber); }
+.banner.training { background: repeating-linear-gradient(135deg, var(--info-soft) 0 12px, transparent 12px 24px), var(--surface); color: var(--info); }
+.hdr { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 16px 12px; background: var(--app); }
+.hdr h1 { font-size: 22px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hdr .sub { font-size: 12.5px; color: var(--fg-3); }
+.ibtn { width: 42px; height: 42px; flex: none; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; position: relative; }
+.ibtn svg { width: 20px; height: 20px; }
+.ibtn .pip { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 10px; background: var(--bad); color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+.content { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 16px 20px; display: grid; gap: 14px; align-content: start; }
+.tabbar { flex: none; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--surface); border-top: 1px solid var(--line); padding: 6px 6px 18px; }
+.frame.tablet .tabbar { padding-bottom: 8px; }
+.tabbar button { border: 0; background: none; display: grid; justify-items: center; gap: 2px; font-size: 11.5px; font-weight: 600; color: var(--fg-3); padding: 6px 0; border-radius: 10px; position: relative; }
+.tabbar button svg { width: 22px; height: 22px; }
+.tabbar button.on { color: var(--accent); }
+.tabbar .pip { position: absolute; top: 2px; left: 55%; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); font-size: 10.5px; display: grid; place-items: center; }
+.actionbar { flex: none; background: var(--surface); border-top: 1px solid var(--line); padding: 12px 16px 22px; display: grid; gap: 10px; }
+.frame.tablet .actionbar { padding-bottom: 12px; }
+
+/* ---------- Primitives ---------- */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; min-width: 0; }
+.card-h { display: flex; align-items: center; gap: 8px; padding: 14px 14px 10px; }
+.card-h h2 { font-size: 16px; flex: 1; }
+.card-b { padding: 0 14px 14px; display: grid; gap: 10px; }
+.btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); padding: 0 16px; font-weight: 650; font-size: 15px; white-space: nowrap; }
+.btn svg { width: 18px; height: 18px; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.dark { background: var(--fg); border-color: var(--fg); color: var(--app); }
+.btn.danger { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 40%, transparent); }
+.btn.ghost { border-color: transparent; background: transparent; }
+.btn.big { min-height: 56px; font-size: 17px; border-radius: 14px; }
+.btn.sm { min-height: 34px; padding: 0 12px; font-size: 13px; border-radius: 9px; }
+.btn.block { width: 100%; }
+.btn.icon { width: 34px; padding: 0; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.row { display: flex; gap: 10px; align-items: center; }
+.row.wrap { flex-wrap: wrap; }
+.grow { flex: 1; min-width: 0; }
+.stack { display: grid; gap: 10px; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 650; background: var(--surface-2); color: var(--fg-2); white-space: nowrap; }
+.badge.good { background: var(--good-soft); color: var(--good); }
+.badge.warn { background: var(--warn-soft); color: var(--warn); }
+.badge.bad { background: var(--bad-soft); color: var(--bad); }
+.badge.info { background: var(--info-soft); color: var(--info); }
+.badge.accent { background: var(--accent-soft); color: var(--accent); }
+.tag { font-family: var(--mono); font-size: 11.5px; padding: 1px 6px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--fg-2); }
+.chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.chip { flex: none; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 999px; padding: 7px 14px; font-size: 13.5px; font-weight: 600; min-height: 36px; }
+.chip.on { background: var(--fg); color: var(--app); border-color: var(--fg); }
+.field { display: grid; gap: 5px; }
+.field > label { font-size: 13px; font-weight: 650; color: var(--fg-2); }
+.input { min-height: 46px; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 12px; padding: 0 14px; width: 100%; min-width: 0; }
+textarea.input { padding: 10px 14px; min-height: 70px; }
+.input:focus { outline: 2px solid color-mix(in srgb, var(--accent) 40%, transparent); border-color: var(--accent); }
+.search { position: relative; }
+.search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--fg-3); }
+.search .input { padding-left: 42px; padding-right: 52px; }
+.search .scan { position: absolute; right: 5px; top: 5px; bottom: 5px; width: 38px; border-radius: 9px; border: 0; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+.search .scan svg { position: static; transform: none; color: currentColor; }
+.switch { position: relative; width: 46px; height: 28px; flex: none; display: inline-block; }
+.switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+.switch span { position: absolute; inset: 0; background: var(--line-strong); border-radius: 28px; transition: .15s; cursor: pointer; }
+.switch span::after { content: ""; position: absolute; width: 22px; height: 22px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .15s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.switch input:checked + span { background: var(--accent); }
+.switch input:checked + span::after { transform: translateX(18px); }
+.switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.list { display: grid; }
+.li { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-top: 1px solid var(--line); min-height: 56px; background: none; border-left: 0; border-right: 0; border-bottom: 0; width: 100%; text-align: left; }
+.li:first-child { border-top: 0; }
+button.li:hover { background: var(--surface-2); }
+.li .t { font-weight: 650; }
+.li .s { font-size: 13px; color: var(--fg-3); }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 14px; }
+.kv dt { color: var(--fg-3); }
+.kv dd { margin: 0; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.divider { border-top: 1px dashed var(--line-strong); }
+.callout { display: flex; gap: 10px; padding: 12px 14px; border-radius: 12px; font-size: 13.5px; background: var(--info-soft); }
+.callout.warn { background: var(--warn-soft); }
+.callout.good { background: var(--good-soft); }
+.callout svg { width: 18px; height: 18px; flex: none; margin-top: 1px; }
+.meter { height: 8px; background: var(--surface-2); border-radius: 8px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--accent); border-radius: 8px; }
+
+/* Art tiles for products (drawn, no photos) */
+.art { aspect-ratio: 1; border-radius: 12px; display: grid; place-items: center; background: hsl(var(--h) 35% 92%); max-width: 100%; }
+.art svg { width: 62%; height: 62%; }
+:root[data-theme="dark"] .art { background: hsl(var(--h) 18% 20%); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .art { background: hsl(var(--h) 18% 20%); } }
+.art.sm { width: 52px; height: 52px; border-radius: 10px; flex: none; }
+
+/* Home */
+.hero-sale { display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 18px; background: var(--accent); color: var(--accent-ink); border: 0; text-align: left; width: 100%; }
+.hero-sale svg { width: 30px; height: 30px; }
+.hero-sale b { font-size: 20px; display: block; }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 10px; display: grid; justify-items: start; gap: 8px; font-size: 13.5px; font-weight: 650; text-align: left; position: relative; min-height: 86px; }
+.tile svg { width: 22px; height: 22px; color: var(--accent); }
+.tile .pip { position: absolute; top: 10px; right: 10px; background: var(--bad); color: #fff; border-radius: 10px; font-size: 11px; min-width: 20px; height: 20px; display: grid; place-items: center; padding: 0 6px; }
+
+/* Product grid */
+.pgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.pcard { width: 100%; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 8px 8px 10px; display: grid; gap: 6px; text-align: left; min-width: 0; }
+.pcard .n { font-weight: 650; font-size: 13.5px; line-height: 1.25; }
+.pcard .p { font-weight: 700; font-variant-numeric: tabular-nums; }
+.pcard .st { font-size: 12px; }
+
+/* Cart */
+.cart-line { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--line); align-items: start; }
+.cart-line:first-child { border-top: 0; }
+.cart-line .t { font-weight: 650; font-size: 14.5px; }
+.cart-line .s { font-size: 12.5px; color: var(--fg-3); }
+.cart-line .price { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cart-line .was { text-decoration: line-through; color: var(--fg-3); font-weight: 500; font-size: 12.5px; }
+.cart-line.ret { background: color-mix(in srgb, var(--warn-soft) 60%, transparent); }
+.stepper { display: inline-flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 10px; overflow: hidden; }
+.stepper button { width: 34px; height: 32px; border: 0; background: var(--surface); font-size: 18px; font-weight: 600; }
+.stepper span { min-width: 28px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.promo { font-size: 12.5px; color: var(--good); font-weight: 600; }
+.line-acts { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.totals { display: grid; gap: 6px; font-size: 14.5px; }
+.totals .r { display: flex; justify-content: space-between; gap: 10px; font-variant-numeric: tabular-nums; }
+.totals .grand { font-variant-numeric: normal; font-size: 22px; font-weight: 750; padding-top: 6px; border-top: 1px solid var(--line); }
+.cust-chip { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px dashed var(--line-strong); background: var(--surface); width: 100%; text-align: left; }
+.cust-chip.set { border-style: solid; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 14px; flex: none; }
+.avatar.lg { width: 64px; height: 64px; font-size: 20px; }
+.tier { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 6px; background: var(--amber-soft); color: var(--amber); }
+
+/* Two-pane sell layout when the screen is wide (tablet) */
+.sellwrap { display: grid; gap: 14px; }
+@container screen (min-width: 760px) {
+  .sellwrap { grid-template-columns: minmax(0, 1.25fr) minmax(320px, 1fr); align-items: start; }
+  .pgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .sell-catalog .pgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tiles { grid-template-columns: repeat(6, 1fr); }
+  .content.pad-wide { padding-left: 22px; padding-right: 22px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+}
+.sell-catalog { display: none; }
+@container screen (min-width: 760px) { .sell-catalog { display: grid; gap: 12px; } }
+
+/* Payment */
+.due { text-align: center; padding: 16px 0 6px; }
+.due .lbl { font-size: 13px; color: var(--fg-3); font-weight: 600; }
+.due .amt { font-size: 40px; font-weight: 750; letter-spacing: -.02em; }
+.tender-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.tender { min-height: 72px; border-radius: 14px; border: 1px solid var(--line-strong); background: var(--surface); display: grid; justify-items: start; align-content: center; gap: 4px; padding: 10px 14px; text-align: left; font-weight: 650; }
+.tender svg { width: 22px; height: 22px; color: var(--accent); }
+.tender .s { font-size: 12px; color: var(--fg-3); font-weight: 500; }
+.paid-line { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-top: 1px solid var(--line); font-size: 14px; }
+.keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.keypad button { height: 58px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.keypad button:active { background: var(--surface-2); }
+.pin-dots { display: flex; gap: 14px; justify-content: center; padding: 10px 0; }
+.pin-dots i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--fg-3); }
+.pin-dots i.on { background: var(--fg); border-color: var(--fg); }
+.terminal { display: grid; justify-items: center; gap: 12px; padding: 20px 0; text-align: center; }
+.terminal .pulse { width: 110px; height: 110px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); position: relative; }
+.terminal .pulse svg { width: 44px; height: 44px; }
+.terminal .pulse::after { content: ""; position: absolute; inset: -8px; border-radius: 50%; border: 2px solid var(--accent); opacity: .5; animation: ring 1.4s ease-out infinite; }
+@keyframes ring { from { transform: scale(.85); opacity: .7; } to { transform: scale(1.2); opacity: 0; } }
+.done-mark { width: 84px; height: 84px; border-radius: 50%; background: var(--good); color: #fff; display: grid; place-items: center; margin: 8px auto 0; }
+.done-mark svg { width: 44px; height: 44px; }
+
+/* Receipt paper */
+.receipt { background: #fffef9; color: #1d1d1b; font-family: var(--mono); font-size: 11px; line-height: 1.45; width: 100%; max-width: 280px; margin: 0 auto; padding: 14px 14px 18px; border-radius: 3px; box-shadow: var(--shadow); }
+.receipt .c { text-align: center; }
+.receipt .ln { display: flex; justify-content: space-between; gap: 8px; }
+.receipt .rule { border-top: 1px dashed #9a9a92; margin: 6px 0; }
+.receipt .b { font-weight: 700; }
+.receipt .qr { width: 64px; height: 64px; margin: 8px auto 2px; background: conic-gradient(#1d1d1b 25%, transparent 0 50%, #1d1d1b 0 75%, transparent 0) 0 0/11px 11px; border: 5px solid #1d1d1b; }
+
+/* Lock screen */
+.lock { flex: 1; display: grid; align-content: center; gap: 18px; padding: 20px 24px 28px; background: var(--ink); color: #e8efec; }
+.lock .who { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.lock .who button { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 10px 12px; display: grid; justify-items: center; gap: 6px; min-width: 96px; color: inherit; }
+.lock .who button.on { border-color: #3fbf9a; background: rgba(63,191,154,.14); }
+.lock .who .avatar { background: rgba(255,255,255,.12); color: #fff; }
+.lock .keypad button { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.1); color: #fff; }
+.lock .pin-dots i { border-color: rgba(255,255,255,.5); }
+.lock .pin-dots i.on { background: #fff; border-color: #fff; }
+
+/* Sheets (bottom on phone, centred on tablet) */
+.scrim { position: absolute; inset: 0; background: rgba(8, 16, 14, .45); z-index: 20; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; max-height: 88%; background: var(--app); border-radius: 22px 22px 0 0; z-index: 21; display: flex; flex-direction: column; box-shadow: var(--shadow); animation: up .18s ease-out; }
+@keyframes up { from { transform: translateY(30px); opacity: .6; } to { transform: none; opacity: 1; } }
+.sheet .grab { width: 40px; height: 5px; border-radius: 4px; background: var(--line-strong); margin: 8px auto 2px; flex: none; }
+.sheet-h { display: flex; align-items: center; gap: 10px; padding: 8px 16px 10px; flex: none; }
+.sheet-h h2 { flex: 1; font-size: 19px; }
+.sheet-b { overflow-y: auto; padding: 0 16px 16px; display: grid; gap: 12px; }
+.sheet-f { padding: 10px 16px 22px; border-top: 1px solid var(--line); display: grid; gap: 8px; flex: none; background: var(--surface); }
+@container screen (min-width: 760px) {
+  .sheet { left: 50%; right: auto; bottom: auto; top: 50%; width: 520px; transform: translate(-50%, -50%); border-radius: 20px; animation: none; }
+  .sheet .grab { display: none; }
+  .sheet-f { border-radius: 0 0 20px 20px; padding-bottom: 14px; }
+}
+.toast { position: absolute; z-index: 30; left: 50%; bottom: 96px; transform: translateX(-50%); background: var(--fg); color: var(--app); padding: 10px 16px; border-radius: 12px; font-size: 13.5px; font-weight: 600; box-shadow: var(--shadow); max-width: calc(100% - 32px); width: max-content; text-align: center; }
+
+/* Real phone: drop the frame, fill the screen */
+@media (max-width: 760px) {
+  .stage { display: block; padding: 0; height: 100%; }
+  .panel-side { display: none; }
+  .stage-device { height: 100%; display: block; }
+  .frame, .frame.tablet { width: 100%; height: 100%; border-radius: 0; padding: 0; box-shadow: none; }
+  .frame::before, .status-bar { display: none; }
+  .screen, .frame.tablet .screen { border-radius: 0; }
+  .tabbar { padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); }
+  .actionbar, .sheet-f { padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-width: 1100px) and (min-width: 761px) {
+  .stage { grid-template-columns: minmax(0, 1fr) 260px; gap: 18px; padding: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::after { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="stage" id="stage">
+  <div class="stage-device">
+    <div class="frame" id="frame">
+      <div class="screen">
+        <div class="status-bar"><span id="clock">10:14</span><span>5G · 82%</span></div>
+        <div class="app" id="app"></div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="panel-side" id="side" aria-label="Demo controls">
+    <div class="side-card">
+      <div class="side-title"><div class="logo">C·P</div><div><b>CORE POS · Store app</b><span>Clickable prototype · sample data</span></div></div>
+      <p class="side-note">The associate app for iPhone, iPad and Android. Same tenant, rules and integrations as the Core POS admin panel.</p>
+    </div>
+    <div class="side-card">
+      <h2>Demo store</h2>
+      <div class="seg" id="side-store"></div>
+      <div class="side-note" id="side-rules"></div>
+    </div>
+    <div class="side-card">
+      <h2>Device</h2>
+      <div class="seg" id="side-dev"></div>
+      <label class="row" style="justify-content:space-between"><span>Offline</span><label class="switch"><input type="checkbox" id="side-off" data-change="demoOffline" aria-label="Simulate offline"><span></span></label></label>
+      <label class="row" style="justify-content:space-between"><span>Training mode</span><label class="switch"><input type="checkbox" id="side-train" data-change="demoTraining" aria-label="Training mode"><span></span></label></label>
+    </div>
+    <div class="side-card">
+      <h2>Jump to</h2>
+      <div class="jump" id="side-jump"></div>
+      <p class="side-note">Sign in with any 4-digit PIN. Mia (Senior Associate) can give up to 10% off; more triggers a manager approval.</p>
+    </div>
+  </aside>
+</div>
+
+<script>
+/* Core POS app: sample data for the prototype (fictional tenant "Atlas Retail Group").
+   Three demo stores show how the same app adapts to country rules:
+   US (sales tax via Avalara, tax exclusive), DE (VAT inclusive, TSE fiscal signing), JP (JCT, no decimals). */
+window.POS = window.POS || {};
+
+POS.data = {
+  stores: {
+    'US-NYC-001': {
+      code: 'US-NYC-001', name: 'Fifth Avenue Flagship', brand: 'Atlas Time', city: 'New York', country: 'US', region: 'NAM',
+      locale: 'en-US', currency: 'USD', tz: 'America/New_York', taxMode: 'exclusive', taxRate: 0.08875, taxLabel: 'Sales tax NY 8.875%', taxEngine: 'Avalara AvaTax',
+      fiscal: null, receiptDefault: 'Ask customer', tenders: ['Card', 'Cash', 'Gift card', 'Store credit', 'Pay by link'], cashRounding: 0,
+      device: 'D-NYC1-02', terminal: 'Adyen S1F2 · S1F2-000158202', printer: 'Epson TM-m30III', returnDays: 60, quick: [20, 50, 100, 200],
+      denoms: [100, 50, 20, 10, 5, 1, 0.25, 0.1, 0.05, 0.01], float: 300,
+    },
+    'DE-BER-012': {
+      code: 'DE-BER-012', name: 'KaDeWe Concession', brand: 'Atlas Time', city: 'Berlin', country: 'DE', region: 'EMEA',
+      locale: 'de-DE', currency: 'EUR', tz: 'Europe/Berlin', taxMode: 'inclusive', taxRate: 0.19, taxLabel: 'MwSt. 19%', taxEngine: 'Native VAT',
+      fiscal: 'TSE (fiskaly SIGN DE)', receiptDefault: 'Print', tenders: ['Card', 'Cash', 'Gift card', 'Voucher'], cashRounding: 0,
+      device: 'D-BER2-02', terminal: 'Adyen V400m · V400m-806117', printer: 'Star mC-Print3', returnDays: 30, quick: [20, 50, 100, 500],
+      denoms: [500, 200, 100, 50, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01], float: 250,
+    },
+    'JP-TYO-011': {
+      code: 'JP-TYO-011', name: 'Ginza Six', brand: 'Atlas Time', city: 'Tokyo', country: 'JP', region: 'APAC',
+      locale: 'ja-JP', currency: 'JPY', tz: 'Asia/Tokyo', taxMode: 'inclusive', taxRate: 0.10, taxLabel: '消費税 10%', taxEngine: 'Native JCT',
+      fiscal: 'Qualified invoice T1234567890123', receiptDefault: 'Print', tenders: ['Card', 'Cash', 'PayPay', 'Gift card'], cashRounding: 0,
+      device: 'D-TYO11-03', terminal: 'Adyen AMS1 · AMS1-000330561', printer: 'Epson TM-m30III', returnDays: 30, quick: [10000, 50000, 100000],
+      denoms: [10000, 5000, 1000, 500, 100, 50, 10, 5, 1], float: 50000,
+    },
+  },
+
+  users: [
+    { id: '1182', name: 'Mia Kowalski', short: 'Mia K.', role: 'Senior Associate', discountLimit: 10, initials: 'MK' },
+    { id: '1121', name: 'Tom Reyes', short: 'Tom R.', role: 'Associate', discountLimit: 0, initials: 'TR' },
+    { id: '1003', name: 'Sarah Lindqvist', short: 'Sarah L.', role: 'Store Manager', discountLimit: 30, initials: 'SL' },
+  ],
+
+  categories: ['All', 'Watches', 'Leather', 'Jewellery', 'Straps', 'Services', 'Gift cards'],
+
+  /* price: [USD, EUR, JPY]; art: drawing used for the product tile */
+  products: [
+    { sku: 'ATL-W-40221', name: 'Meridian Chronograph 42mm', brand: 'Atlas Time', cat: 'Watches', art: 'watch', hue: 210, price: [395, 379, 59400], variants: ['Steel · black dial', 'Steel · blue dial', 'Gold tone'], ean: '4053858942217', attrs: 'Quartz chronograph · 42 mm · 10 ATM', serial: true },
+    { sku: 'ATL-W-40198', name: 'Meridian Automatic 40mm', brand: 'Atlas Time', cat: 'Watches', art: 'watch', hue: 18, price: [595, 569, 89100], variants: ['Rose gold · white dial', 'Steel · green dial'], ean: '4053858941982', attrs: 'Automatic · sapphire · 40 mm', serial: true },
+    { sku: 'ATL-W-40310', name: 'Coastline Diver 44mm', brand: 'Atlas Time', cat: 'Watches', art: 'watch', hue: 190, price: [325, 309, 48400], variants: ['Black · rubber', 'Blue · steel'], ean: '4053858943108', attrs: 'Diver · 20 ATM · 44 mm', serial: true },
+    { sku: 'NOR-W-00712', name: 'Fjord 36mm, mesh strap', brand: 'Nordlys', cat: 'Watches', art: 'watch', hue: 160, price: [189, 179, 27500], variants: ['Silver', 'Gold', 'Black'], ean: '5707446007125', attrs: 'Minimalist · 36 mm · mesh', serial: true },
+    { sku: 'KES-L-11804', name: 'Harbour Tote, cognac', brand: 'Kestrel', cat: 'Leather', art: 'bag', hue: 28, price: [495, 469, 74800], variants: ['Cognac', 'Black', 'Olive'], ean: '0796483118045', attrs: 'Full-grain leather · 15" laptop' },
+    { sku: 'KES-L-11530', name: 'Crossbody Mini', brand: 'Kestrel', cat: 'Leather', art: 'bag', hue: 340, price: [245, 229, 36300], variants: ['Black', 'Burgundy'], ean: '0796483115303', attrs: 'Pebbled leather · adjustable strap' },
+    { sku: 'KES-L-11290', name: 'Bifold Wallet RFID', brand: 'Kestrel', cat: 'Leather', art: 'wallet', hue: 30, price: [129, 119, 18700], variants: ['Black', 'Brown'], ean: '0796483112906', attrs: 'RFID blocking · 8 card slots' },
+    { sku: 'ATL-J-20077', name: 'Link Bracelet, steel', brand: 'Atlas Time', cat: 'Jewellery', art: 'ring', hue: 220, price: [139, 129, 20900], variants: ['Steel', 'Gold tone'], ean: '4053858200775', attrs: 'Stainless steel · 19 cm' },
+    { sku: 'ATL-A-90012', name: 'Leather Strap 20mm', brand: 'Atlas Time', cat: 'Straps', art: 'strap', hue: 25, price: [59, 55, 8800], variants: ['Brown', 'Black', 'Navy'], ean: '4053858900125', attrs: 'Quick-release · fits 20 mm lugs' },
+    { sku: 'ATL-S-ENGRV', name: 'Engraving service', brand: 'Atlas Time', cat: 'Services', art: 'pen', hue: 260, price: [25, 25, 3300], variants: [], ean: '—', attrs: 'Up to 20 characters · ready in 30 min', service: true },
+    { sku: 'ATL-GC', name: 'Gift card', brand: 'Atlas Time', cat: 'Gift cards', art: 'card', hue: 150, price: [100, 100, 10000], variants: ['Amount on activation'], ean: '—', attrs: 'Activated at the till · no expiry', gift: true },
+  ],
+
+  /* Stock: [this store, nearby store A, nearby store B, online DC] */
+  stock: {
+    'ATL-W-40221': [4, 2, 0, 312], 'ATL-W-40198': [1, 0, 3, 88], 'ATL-W-40310': [0, 5, 2, 140], 'NOR-W-00712': [6, 1, 1, 410],
+    'KES-L-11804': [2, 0, 1, 64], 'KES-L-11530': [3, 2, 0, 120], 'KES-L-11290': [11, 4, 6, 820], 'ATL-J-20077': [5, 0, 2, 230],
+    'ATL-A-90012': [24, 9, 12, 1500], 'ATL-S-ENGRV': [99, 0, 0, 0], 'ATL-GC': [99, 0, 0, 0],
+  },
+  nearby: { 'US-NYC-001': ['SoHo · 2.1 mi', 'Brooklyn · 5.4 mi'], 'DE-BER-012': ['Alexa · 4 km', 'Potsdam · 26 km'], 'JP-TYO-011': ['Shinjuku · 6 km', 'Yokohama · 29 km'] },
+
+  customers: [
+    { id: 'C-88213490', name: 'Olivia Bennett', tier: 'Gold', email: 'olivia.bennett@example.com', phone: '+1 212 555 0148', since: '2019', ltv: 4820, visits: 14, prefs: 'Rose gold, automatic movements', wrist: '16 cm', receipt: 'Email', credit: 40, consent: { email: true, sms: false } ,
+      history: [['12 Sep 2026', 'Meridian Automatic 40mm', 595], ['02 Mar 2026', 'Link Bracelet, steel', 139], ['18 Dec 2025', 'Harbour Tote, cognac', 495]], wishlist: ['ATL-W-40310'] },
+    { id: 'C-77102244', name: 'Lukas Becker', tier: 'Silver', email: 'lukas.becker@example.com', phone: '+49 30 5550 1144', since: '2022', ltv: 1210, visits: 5, prefs: 'Diver watches', wrist: '18 cm', receipt: 'Print', credit: 0, consent: { email: true, sms: true },
+      history: [['20 Aug 2026', 'Coastline Diver 44mm', 309]], wishlist: ['ATL-W-40221'] },
+    { id: 'C-66019871', name: 'Yuki Sato', tier: 'Platinum', email: 'yuki.sato@example.com', phone: '+81 3 5550 7781', since: '2017', ltv: 11400, visits: 31, prefs: 'Leather goods, black', wrist: '15 cm', receipt: 'Print', credit: 0, consent: { email: false, sms: false },
+      history: [['01 Oct 2026', 'Crossbody Mini', 229], ['14 Jun 2026', 'Meridian Chronograph 42mm', 379]], wishlist: ['KES-L-11804'] },
+    { id: 'C-55120003', name: 'Aarav Sharma', tier: 'Member', email: 'aarav.sharma@example.com', phone: '+1 646 555 0101', since: '2026', ltv: 189, visits: 1, prefs: '—', wrist: '—', receipt: 'SMS', credit: 0, consent: { email: true, sms: true },
+      history: [['30 Sep 2026', 'Fjord 36mm, mesh strap', 189]], wishlist: [] },
+  ],
+
+  /* Recent sale used by the returns flow (looked up by receipt barcode). */
+  pastSale: {
+    id: '02-004118', date: '05 Oct 2026', associate: 'Tom R.', customer: 'C-88213490',
+    lines: [{ sku: 'ATL-W-40221', variant: 'Steel · black dial', qty: 1 }, { sku: 'ATL-A-90012', variant: 'Brown', qty: 1 }],
+    tender: 'Card · VISA •••• 4417',
+  },
+
+  orders: [
+    { id: 'FC-1048812', type: 'Click & collect', customer: 'Olivia Bennett', due: 'Today 17:00', status: 'To pick', lines: [['ATL-J-20077', 'Steel', 1], ['ATL-A-90012', 'Navy', 1]] },
+    { id: 'FC-1048790', type: 'Ship from store', customer: 'J. Morales', due: 'Today 18:00 (carrier)', status: 'To pick', lines: [['KES-L-11290', 'Black', 2]] },
+    { id: 'FC-1048755', type: 'Click & collect', customer: 'Aarav Sharma', due: 'Ready since 11:20', status: 'Ready for pickup', lines: [['NOR-W-00712', 'Gold', 1]] },
+  ],
+
+  parked: [
+    { id: 'P-0091', by: 'Tom R.', at: '11:42', customer: 'Lukas Becker', lines: [{ sku: 'ATL-W-40221', variant: 'Steel · blue dial', qty: 1 }, { sku: 'ATL-S-ENGRV', variant: '', qty: 1, note: 'L.B. 2026' }] },
+  ],
+};
+</script>
+<script>
+/* Core POS app: state, cart maths, rendering loop, navigation and shared UI helpers. */
+window.POS = window.POS || {};
+
+(function () {
+  const D = POS.data;
+
+  /* ---------- Icons ---------- */
+  const P = {
+    home: '<path d="M3 11l9-8 9 8M5 9.5V21h5v-6h4v6h5V9.5"/>',
+    bag: '<path d="M5 8h14l-1 13H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+    users: '<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M16 3.5a4 4 0 0 1 0 7.5M22 21a7 7 0 0 0-4-6.3"/>',
+    grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+    scan: '<path d="M3 7V4h3M18 4h3v3M21 17v3h-3M6 20H3v-3M7 8v8M10 8v8M13 8v8M17 8v8"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    x: '<path d="M18 6L6 18M6 6l12 12"/>',
+    back: '<path d="M15 18l-6-6 6-6"/>',
+    chev: '<path d="M9 18l6-6-6-6"/>',
+    card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
+    cash: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',
+    gift: '<rect x="3" y="8" width="18" height="13" rx="1"/><path d="M3 12h18M12 8v13M12 8S10 3 7.5 4.5 9 8 12 8zM12 8s2-5 4.5-3.5S15 8 12 8z"/>',
+    link: '<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/>',
+    wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1.3"/>',
+    credit: '<path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/>',
+    store: '<path d="M3 9l1.5-5h15L21 9M3 9h18v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0V9zM5 13v8h14v-8"/>',
+    truck: '<path d="M1 4h14v12H1zM15 8h4l4 4v4h-8"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>',
+    box: '<path d="M21 8l-9-5-9 5v8l9 5 9-5V8zM3 8l9 5 9-5M12 13v8"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    check: '<path d="M20 6L9 17l-5-5"/>',
+    alert: '<path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18h.01"/>',
+    off: '<path d="M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 5.2-2.8M19 13a10 10 0 0 0-2.5-1.8M2 9a15 15 0 0 1 4.3-2.6M22 9a15 15 0 0 0-11-3.9M12 20h.01"/>',
+    lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+    percent: '<path d="M19 5L5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+    pen: '<path d="M17 3l4 4L8 20H4v-4L17 3z"/>',
+    receipt: '<path d="M5 2h14v20l-3-2-2 2-2-2-2 2-2-2-3 2V2zM9 7h6M9 11h6M9 15h4"/>',
+    mail: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/>',
+    sms: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    printer: '<path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+    qr: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 17h4v4h-4"/>',
+    ret: '<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-4"/>',
+    userplus: '<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6"/>',
+    tag: '<path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+    eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',
+    pause: '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>',
+    sync: '<path d="M21 2v6h-6M3 22v-6h6M21 8a9 9 0 0 0-15-3.5L3 8M3 16a9 9 0 0 0 15 3.5l3-3.5"/>',
+    out: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+    star: '<path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2z"/>',
+    graduation: '<path d="M22 10L12 5 2 10l10 5 10-5zM6 12v5c3 2 9 2 12 0v-5"/>',
+    signal: '<path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 4v16"/>',
+    battery: '<rect x="2" y="7" width="18" height="10" rx="2"/><path d="M22 11v2M5 10h9v4H5z"/>',
+  };
+  POS.icon = (n, attrs = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${attrs}>${P[n] || ''}</svg>`;
+
+  /* Drawn product art, tinted by hue. */
+  const ART = {
+    watch: '<rect x="38" y="6" width="24" height="22" rx="4"/><rect x="38" y="72" width="24" height="22" rx="4"/><circle cx="50" cy="50" r="26" stroke-width="5"/><path d="M50 50V34M50 50l11 7"/><path d="M78 47h4v6h-4"/>',
+    bag: '<path d="M18 38h64l-6 52H24z" stroke-width="5"/><path d="M34 38V28a16 16 0 0 1 32 0v10"/><path d="M40 58h20"/>',
+    wallet: '<rect x="14" y="26" width="72" height="50" rx="8" stroke-width="5"/><path d="M14 40h72M62 58h12"/>',
+    ring: '<ellipse cx="50" cy="56" rx="32" ry="24" stroke-width="5"/><ellipse cx="50" cy="56" rx="22" ry="14"/><path d="M36 30h28l-6 10H42z"/>',
+    strap: '<path d="M36 6h28v34H36zM36 60h28v34H36z" stroke-width="5"/><path d="M42 74h16M42 82h16M50 40v20"/>',
+    pen: '<path d="M70 14l16 16-46 46H24V60z" stroke-width="5"/><path d="M60 24l16 16M20 88h60"/>',
+    card: '<rect x="12" y="24" width="76" height="52" rx="8" stroke-width="5"/><path d="M12 40h76M24 62h20"/><path d="M64 56l6 6 10-12"/>',
+  };
+  POS.art = (p, cls = '') => `<div class="art ${cls}" style="--h:${p.hue}"><svg viewBox="0 0 100 100" fill="none" stroke="hsl(${p.hue} 45% 38%)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ART[p.art]}</svg></div>`;
+
+  /* ---------- Formatting ---------- */
+  POS.esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  POS.store = () => D.stores[S.storeCode];
+  POS.dec = () => (POS.store().currency === 'JPY' ? 0 : 2);
+  POS.round = (v) => { const f = 10 ** POS.dec(); return Math.round(v * f) / f; };
+  POS.money = (v) => new Intl.NumberFormat(POS.store().locale, { style: 'currency', currency: POS.store().currency, minimumFractionDigits: POS.dec(), maximumFractionDigits: POS.dec() }).format(v);
+  POS.product = (sku) => D.products.find((p) => p.sku === sku);
+  POS.price = (p) => p.price[{ USD: 0, EUR: 1, JPY: 2 }[POS.store().currency]];
+  POS.customer = (id) => D.customers.find((c) => c.id === id);
+  POS.initials = (n) => n.split(' ').map((x) => x[0]).join('').slice(0, 2);
+  POS.switch = (id, on, label, act) => `<label class="switch"><input type="checkbox" id="${id}" ${on ? 'checked' : ''} aria-label="${POS.esc(label)}" ${act ? `data-change="${act}"` : ''}><span></span></label>`;
+
+  /* ---------- State ---------- */
+  const newCart = () => ({ lines: [], customer: null, payments: [], basketDisc: 0, salesperson: null, number: null });
+  const S = (POS.S = {
+    storeCode: 'US-NYC-001', device: 'phone', user: null, lockUser: '1182', pin: '',
+    stack: [{ v: 'home' }], cart: newCart(), parked: JSON.parse(JSON.stringify(D.parked)),
+    offline: false, queued: 0, training: false, sheet: null, toast: null,
+    cat: 'All', q: '', custQ: '', seq: 4120, myDay: { sales: 3840, txns: 9, units: 13 }, last: null,
+    drawer: { paidIn: 0, paidOut: 0, cashSales: 412 }, dayOpen: true, orders: JSON.parse(JSON.stringify(D.orders)),
+  });
+  POS.newCart = newCart;
+
+  /* ---------- Cart maths ---------- */
+  let key = 0;
+  POS.addLine = (sku, variant, opts = {}) => {
+    const p = POS.product(sku);
+    const ex = S.cart.lines.find((l) => l.sku === sku && l.variant === variant && !l.ret && !l.ship && !opts.ship && !p.service && !p.gift && !opts.ret);
+    if (ex) ex.qty += 1;
+    else S.cart.lines.push({ key: ++key, sku, variant: variant ?? (p.variants[0] || ''), qty: opts.ret ? -1 : 1, price: opts.price ?? POS.price(p), disc: 0, discReason: '', note: opts.note || '', ship: !!opts.ship, ret: !!opts.ret, serial: '' });
+  };
+  POS.totals = (cart = S.cart) => {
+    const st = POS.store();
+    const lines = cart.lines.map((l) => ({ ...l, gross: l.price * l.qty, manual: POS.round((l.price * Math.abs(l.qty) * l.disc) / 100) * Math.sign(l.qty), promo: 0, promoName: '' }));
+    // Gift with purchase: a strap is free with any watch.
+    const hasWatch = lines.some((l) => !l.ret && l.qty > 0 && POS.product(l.sku).cat === 'Watches');
+    const strap = lines.find((l) => !l.ret && l.qty > 0 && l.sku === 'ATL-A-90012');
+    if (hasWatch && strap) { strap.promo = strap.price; strap.promoName = 'Free strap with any watch'; }
+    const sub = lines.reduce((a, l) => a + l.gross, 0);
+    const lineDisc = lines.reduce((a, l) => a + l.manual + l.promo, 0);
+    let basketPromo = 0, basketPromoName = '';
+    if (st.currency === 'JPY' && sub - lineDisc >= 50000) { basketPromo = 5000; basketPromoName = 'Spend ¥50,000 save ¥5,000'; }
+    const basketManual = POS.round(((sub - lineDisc - basketPromo) * (cart.basketDisc || 0)) / 100);
+    const net = POS.round(sub - lineDisc - basketPromo - basketManual);
+    let tax, total;
+    if (st.taxMode === 'exclusive') { tax = POS.round(net * st.taxRate); total = POS.round(net + tax); }
+    else { total = net; tax = POS.round(net - net / (1 + st.taxRate)); }
+    const paid = cart.payments.reduce((a, p) => a + p.amount, 0);
+    return { lines, sub, lineDisc, basketPromo, basketPromoName, basketManual, discounts: lineDisc + basketPromo + basketManual, net, tax, total, paid: POS.round(paid), remaining: POS.round(total - paid), units: lines.reduce((a, l) => a + l.qty, 0) };
+  };
+
+  /* ---------- Navigation ---------- */
+  POS.V = {};      // views
+  POS.SH = {};     // sheets
+  POS.ACT = {};    // actions
+  POS.cur = () => S.stack[S.stack.length - 1];
+  POS.go = (v, p = {}) => { S.stack.push({ v, ...p }); POS.render(); };
+  POS.back = () => { if (S.stack.length > 1) S.stack.pop(); POS.render(); };
+  POS.tab = (v) => { S.stack = [{ v }]; S.sheet = null; POS.render(); };
+  POS.sheet = (type, p = {}) => { S.sheet = { type, ...p }; POS.render(); };
+  POS.closeSheet = () => { S.sheet = null; POS.pendingApproval = null; POS.render(); };
+  let toastT;
+  POS.toast = (m) => { S.toast = m; POS.render(); clearTimeout(toastT); toastT = setTimeout(() => { S.toast = null; POS.render(); }, 2400); };
+
+  const TABS = [['home', 'Home', 'home'], ['sell', 'Sell', 'bag'], ['products', 'Products', 'search'], ['customers', 'Customers', 'users'], ['more', 'More', 'grid']];
+  const ROOT_OF = { home: 'home', sell: 'sell', products: 'products', product: 'products', customers: 'customers', customer: 'customers', more: 'more' };
+
+  function tabbar() {
+    const root = ROOT_OF[S.stack[0].v] || 'more';
+    const count = S.cart.lines.reduce((a, l) => a + Math.abs(l.qty), 0);
+    return `<nav class="tabbar" aria-label="Main">${TABS.map(([v, l, ic]) => `<button class="${root === v ? 'on' : ''}" data-act="tab" data-arg="${v}" aria-label="${l}">${POS.icon(ic)}${l}${v === 'sell' && count ? `<span class="pip">${count}</span>` : ''}</button>`).join('')}</nav>`;
+  }
+
+  POS.tabbar = tabbar;
+
+  /* ---------- Render loop ---------- */
+  const scrollMem = {};
+  POS.render = () => {
+    const el = document.getElementById('app');
+    if (!el) return;
+    const active = document.activeElement;
+    const focusId = active && active.id && el.contains(active) ? active.id : null;
+    const sel = focusId && 'selectionStart' in active ? [active.selectionStart, active.selectionEnd] : null;
+    const cur = POS.cur();
+    const oldContent = el.querySelector('.content');
+    if (oldContent) scrollMem[el.dataset.view] = oldContent.scrollTop;
+
+    let html = '';
+    if (!S.user) html = POS.V.lock();
+    else {
+      const view = POS.V[cur.v](cur);
+      const banners = (S.offline ? `<div class="banner offline">${POS.icon('off', 'width="16" height="16"')}Offline · selling continues · ${S.queued} transaction${S.queued === 1 ? '' : 's'} queued</div>` : '')
+        + (S.training ? `<div class="banner training">${POS.icon('graduation', 'width="16" height="16"')}Training mode · nothing is charged, signed or posted</div>` : '');
+      html = `${banners}
+        <header class="hdr">${S.stack.length > 1 ? `<button class="ibtn" data-act="back" aria-label="Back">${POS.icon('back')}</button>` : ''}
+          <div class="grow"><h1>${view.title}</h1>${view.sub ? `<div class="sub">${view.sub}</div>` : ''}</div>${view.right || ''}</header>
+        <main class="content ${view.wide ? 'pad-wide' : ''}">${view.body}</main>
+        ${view.footer === undefined ? tabbar() : view.footer}`;
+    }
+    if (S.sheet) {
+      const sh = POS.SH[S.sheet.type](S.sheet);
+      html += `<div class="scrim" data-act="closeSheet"></div><section class="sheet" role="dialog" aria-modal="true" aria-label="${POS.esc(sh.title)}"><div class="grab"></div>
+        <div class="sheet-h"><h2>${sh.title}</h2>${sh.noClose ? '' : `<button class="ibtn" data-act="closeSheet" aria-label="Close">${POS.icon('x')}</button>`}</div>
+        <div class="sheet-b">${sh.body}</div>${sh.footer ? `<div class="sheet-f">${sh.footer}</div>` : ''}</section>`;
+    }
+    if (S.toast) html += `<div class="toast" role="status">${POS.esc(S.toast)}</div>`;
+    el.innerHTML = html;
+    el.dataset.view = S.user ? cur.v : 'lock';
+    const nc = el.querySelector('.content');
+    if (nc && scrollMem[el.dataset.view] !== undefined) nc.scrollTop = scrollMem[el.dataset.view];
+    if (focusId) { const f = document.getElementById(focusId); if (f) { f.focus(); if (sel && f.setSelectionRange) try { f.setSelectionRange(sel[0], sel[1]); } catch (e) { /* not a text input */ } } }
+    renderSide();
+  };
+
+  /* ---------- Event delegation ---------- */
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-act]');
+    if (!t || !document.getElementById('stage').contains(t)) return;
+    const fn = POS.ACT[t.dataset.act];
+    if (fn) { e.preventDefault(); fn(t.dataset.arg, t, e); }
+  });
+  document.addEventListener('input', (e) => { const fn = POS.ACT[e.target.dataset.input]; if (fn) fn(e.target.value, e.target, e); });
+  document.addEventListener('change', (e) => { const fn = POS.ACT[e.target.dataset.change]; if (fn) fn(e.target.type === 'checkbox' ? e.target.checked : e.target.value, e.target, e); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && S.sheet && !POS.SH[S.sheet.type](S.sheet).noClose) POS.closeSheet();
+    if (e.key === 'Enter' && e.target.dataset.enter) POS.ACT[e.target.dataset.enter]?.(e.target.value, e.target, e);
+  });
+
+  Object.assign(POS.ACT, {
+    tab: (v) => POS.tab(v),
+    back: () => POS.back(),
+    go: (v) => POS.go(v),
+    closeSheet: () => POS.closeSheet(),
+    sheet: (t) => POS.sheet(t),
+    toast: (m) => POS.toast(m),
+  });
+
+  /* ---------- Demo side panel ---------- */
+  const JUMPS = [['Sell', () => POS.tab('sell')], ['Product detail', () => { POS.tab('products'); POS.go('product', { sku: 'ATL-W-40221' }); }], ['Customer', () => { POS.tab('customers'); POS.go('customer', { id: 'C-88213490' }); }],
+    ['Checkout', () => { if (!S.cart.lines.length) { POS.addLine('ATL-W-40221'); POS.addLine('ATL-A-90012'); } POS.tab('sell'); POS.go('checkout'); }], ['Return', () => { POS.tab('home'); POS.go('returns'); }],
+    ['Orders to fulfil', () => { POS.tab('home'); POS.go('orders'); }], ['Close day', () => { POS.tab('more'); POS.go('cash'); }], ['Lock screen', () => { S.user = null; S.pin = ''; POS.render(); }]];
+  function renderSide() {
+    const side = document.getElementById('side');
+    if (!side) return;
+    const st = POS.store();
+    side.querySelector('#side-store').innerHTML = Object.values(D.stores).map((s) => `<button class="${s.code === S.storeCode ? 'on' : ''}" data-act="demoStore" data-arg="${s.code}">${s.country}</button>`).join('');
+    side.querySelector('#side-dev').innerHTML = ['phone', 'tablet'].map((d) => `<button class="${S.device === d ? 'on' : ''}" data-act="demoDevice" data-arg="${d}">${d === 'phone' ? 'Phone' : 'Tablet'}</button>`).join('');
+    side.querySelector('#side-rules').innerHTML = `<b>${st.code}</b> · ${st.name}<br>${st.currency} · ${st.taxEngine} · prices ${st.taxMode} of tax${st.fiscal ? `<br>Fiscal: ${st.fiscal}` : ''}<br>Returns within ${st.returnDays} days`;
+    side.querySelector('#side-off').checked = S.offline;
+    side.querySelector('#side-train').checked = S.training;
+  }
+  Object.assign(POS.ACT, {
+    demoStore: (code) => { S.storeCode = code; S.cart = newCart(); S.sheet = null; S.stack = [{ v: 'home' }]; POS.toast(`Signed in at ${code}`); },
+    demoDevice: (d) => { S.device = d; document.getElementById('frame').className = 'frame' + (d === 'tablet' ? ' tablet' : ''); POS.render(); },
+    demoOffline: (on) => { S.offline = on; POS.toast(on ? 'Connection lost. Selling continues offline.' : `Back online. ${S.queued} queued transaction${S.queued === 1 ? '' : 's'} synced.`); if (!on) S.queued = 0; },
+    demoTraining: (on) => { S.training = on; POS.render(); },
+    jump: (i) => { if (!S.user) { S.user = D.users[0]; S.cart.salesperson = S.user.id; } JUMPS[+i][1](); },
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('side-jump').innerHTML = JUMPS.map(([l], i) => `<button data-act="jump" data-arg="${i}">${l}</button>`).join('');
+    const clock = () => { const n = new Date(); const t = document.getElementById('clock'); if (t) t.textContent = n.toTimeString().slice(0, 5); };
+    clock(); setInterval(clock, 30000);
+    POS.render();
+  });
+})();
+</script>
+<script>
+/* Views: sign-in, home, sell (cart), products, product detail, customers, customer profile,
+   checkout and sale complete. Sheets: line edit, customer search/create, tenders, approval. */
+(function () {
+  const D = POS.data, S = POS.S, V = POS.V, SH = POS.SH, A = POS.ACT, I = POS.icon, E = POS.esc, M = (v) => POS.money(v);
+
+  /* ================= Sign-in (shared device, PIN switch) ================= */
+  V.lock = () => {
+    const st = POS.store(), u = D.users.find((x) => x.id === S.lockUser);
+    return `<div class="lock">
+      <div style="text-align:center;display:grid;gap:4px"><div class="eyebrow" style="color:#8fa59d">${st.code} · ${st.device}</div><h1 style="font-size:24px">${E(st.name)}</h1><div class="small" style="color:#8fa59d">Device signed in with Okta SSO · switch user with your PIN</div></div>
+      <div class="who">${D.users.map((x) => `<button class="${x.id === S.lockUser ? 'on' : ''}" data-act="lockUser" data-arg="${x.id}"><span class="avatar">${x.initials}</span><span class="small">${x.short}</span><span style="font-size:11px;color:#8fa59d">${x.role}</span></button>`).join('')}</div>
+      <div style="text-align:center" class="small">Enter PIN for ${u.short} <span style="color:#8fa59d">(any 4 digits in this demo)</span></div>
+      <div class="pin-dots">${[0, 1, 2, 3].map((i) => `<i class="${S.pin.length > i ? 'on' : ''}"></i>`).join('')}</div>
+      <div class="keypad" style="max-width:300px;width:100%;margin:0 auto">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0, '⌫'].map((k) => (k === '' ? '<span></span>' : `<button data-act="pinKey" data-arg="${k}" aria-label="${k === '⌫' ? 'Delete' : k}">${k}</button>`)).join('')}</div>
+    </div>`;
+  };
+  Object.assign(A, {
+    lockUser: (id) => { S.lockUser = id; S.pin = ''; POS.render(); },
+    pinKey: (k) => {
+      if (k === '⌫') S.pin = S.pin.slice(0, -1); else if (S.pin.length < 4) S.pin += k;
+      if (S.pin.length === 4) { S.user = D.users.find((x) => x.id === S.lockUser); S.pin = ''; if (!S.cart.salesperson) S.cart.salesperson = S.user.id; setTimeout(() => POS.toast(`Signed in as ${S.user.short}`), 0); }
+      POS.render();
+    },
+    lock: () => { S.user = null; S.pin = ''; S.sheet = null; POS.render(); },
+  });
+
+  /* ================= Home ================= */
+  V.home = () => {
+    const st = POS.store(), u = S.user, t = POS.totals();
+    const count = S.cart.lines.reduce((a, l) => a + Math.abs(l.qty), 0);
+    const toPick = S.orders.filter((o) => o.status === 'To pick').length;
+    const target = { USD: 6000, EUR: 5500, JPY: 900000 }[st.currency], sales = S.myDay.sales * { USD: 1, EUR: 0.92, JPY: 149 }[st.currency];
+    const tile = (act, arg, ic, label, pip) => `<button class="tile" data-act="${act}" data-arg="${arg}">${I(ic)}<span>${label}</span>${pip ? `<span class="pip">${pip}</span>` : ''}</button>`;
+    return {
+      title: `Hi, ${u.name.split(' ')[0]}`, sub: `${st.name} · ${S.dayOpen ? 'Store open since 09:52' : 'Day closed'}`,
+      right: `<button class="ibtn" data-act="lock" aria-label="Lock and switch user">${I('lock')}</button>`,
+      wide: true,
+      body: `
+        <button class="hero-sale" data-act="tab" data-arg="sell">${I('bag')}<span class="grow"><b>${count ? 'Continue sale' : 'New sale'}</b><span class="small">${count ? `${count} item${count > 1 ? 's' : ''} · ${M(t.total)}` : 'Scan an item or search the catalogue'}</span></span>${I('chev')}</button>
+        <div class="tiles">
+          ${tile('go', 'returns', 'ret', 'Return or exchange')}${tile('tab', 'products', 'search', 'Find product')}${tile('tab', 'customers', 'users', 'Customers')}
+          ${tile('go', 'orders', 'box', 'Orders to fulfil', toPick)}${tile('go', 'parked', 'pause', 'Parked sales', S.parked.length)}${tile('go', 'cash', 'cash', 'Cash & day')}
+        </div>
+        <div class="two-col" style="display:grid;gap:14px">
+        <section class="card"><div class="card-h"><h2>My day</h2><span class="badge accent">${u.role}</span></div><div class="card-b">
+          <div class="row"><span class="grow"><b style="font-size:22px" class="num">${M(sales)}</b> <span class="muted small">of ${M(target)} target</span></span><b class="num">${Math.round((sales / target) * 100)}%</b></div>
+          <div class="meter"><i style="width:${Math.min(100, (sales / target) * 100)}%"></i></div>
+          <div class="g3" style="text-align:center">${[['Sales', S.myDay.txns], ['Avg. sale', M(sales / S.myDay.txns)], ['Items / sale', (S.myDay.units / S.myDay.txns).toFixed(2)]].map(([a, b]) => `<div><div class="eyebrow">${a}</div><b class="num">${b}</b></div>`).join('')}</div>
+        </div></section>
+        <section class="card"><div class="card-h"><h2>Today in store</h2></div><div class="list">
+          <button class="li" data-act="go" data-arg="orders"><span class="badge info">${I('box', 'width="14" height="14"')} Pickup</span><span class="grow s">Aarav Sharma's order is ready for pickup</span>${I('chev', 'width="18" height="18"')}</button>
+          <div class="li"><span class="badge good">${I('tag', 'width="14" height="14"')} Promo</span><span class="grow s">Free strap with any watch, applied automatically</span></div>
+          ${st.currency === 'JPY' ? `<div class="li"><span class="badge good">Promo</span><span class="grow s">Spend ¥50,000 save ¥5,000 until 20 Oct</span></div>` : ''}
+          <div class="li"><span class="badge warn">${I('clock', 'width="14" height="14"')} Tonight</span><span class="grow s">New prices for 1,284 items from 00:00. Shelf labels print at close.</span></div>
+        </div></section></div>`,
+    };
+  };
+
+  /* ================= Products ================= */
+  function filteredProducts() {
+    const q = S.q.trim().toLowerCase();
+    return D.products.filter((p) => (S.cat === 'All' || p.cat === S.cat) && (!q || (p.name + p.sku + p.ean + p.brand + p.cat).toLowerCase().includes(q)));
+  }
+  const stockLabel = (sku) => { const s = D.stock[sku][0]; return s >= 99 ? '' : s === 0 ? '<span class="st down">Not in store</span>' : s < 3 ? `<span class="st" style="color:var(--warn)">${s} left here</span>` : `<span class="st muted">${s} in store</span>`; };
+  function catalog(inSell) {
+    const list = filteredProducts();
+    return `<div class="search"><input class="input" id="${inSell ? 'q-sell' : 'q-prod'}" value="${E(S.q)}" placeholder="Search name, SKU or scan barcode" data-input="setQ" data-enter="scanEnter" aria-label="Search products">${I('search')}<button class="scan" data-act="scanDemo" aria-label="Scan barcode">${I('scan')}</button></div>
+      <div class="chips">${D.categories.map((c) => `<button class="chip ${S.cat === c ? 'on' : ''}" data-act="setCat" data-arg="${c}">${c}</button>`).join('')}</div>
+      <div class="pgrid">${list.map((p) => `<button class="pcard" data-act="${inSell ? 'quickAdd' : 'openProduct'}" data-arg="${p.sku}">${POS.art(p)}<span class="n">${E(p.name)}</span><span class="row" style="justify-content:space-between"><span class="p">${M(POS.price(p))}</span>${inSell ? `<span class="badge accent" aria-label="Add">${I('plus', 'width="12" height="12"')}</span>` : ''}</span>${stockLabel(p.sku)}</button>`).join('') || '<p class="muted small">No products match. Try another search.</p>'}</div>`;
+  }
+  V.products = () => ({ title: 'Products', sub: `${D.products.length} items · prices for ${POS.store().code}`, body: catalog(false), wide: true });
+  Object.assign(A, {
+    setQ: (v) => { S.q = v; POS.render(); },
+    setCat: (c) => { S.cat = c; POS.render(); },
+    openProduct: (sku) => POS.go('product', { sku }),
+    quickAdd: (sku) => { POS.addLine(sku); POS.toast(`${POS.product(sku).name} added`); },
+    scanDemo: () => { const p = D.products[Math.floor(Math.random() * 8)]; POS.addLine(p.sku); if (POS.cur().v !== 'sell') POS.tab('sell'); POS.toast(`Scanned ${p.ean} · ${p.name}`); },
+    scanEnter: (v) => {
+      const q = v.trim().toLowerCase();
+      const p = D.products.find((x) => x.ean === q || x.sku.toLowerCase() === q) || (filteredProducts().length === 1 ? filteredProducts()[0] : null);
+      if (p) { POS.addLine(p.sku); S.q = ''; POS.toast(`${p.name} added`); if (POS.cur().v !== 'sell') POS.tab('sell'); }
+    },
+  });
+
+  V.product = (c) => {
+    const p = POS.product(c.sku), st = POS.store(), stock = D.stock[p.sku], near = D.nearby[st.code];
+    const variant = c.variant || p.variants[0] || '';
+    const none = stock[0] === 0;
+    return {
+      title: E(p.name), sub: `${p.brand} · ${p.cat}`, wide: true,
+      body: `<div class="two-col" style="display:grid;gap:14px">
+        <div style="max-width:320px;width:100%;margin:0 auto">${POS.art(p)}</div>
+        <div class="stack">
+          <div class="row" style="justify-content:space-between"><b style="font-size:26px" class="num">${M(POS.price(p))}</b>${p.cat === 'Watches' ? '<span class="badge good">Free strap with any watch</span>' : ''}</div>
+          <div class="small muted">${E(p.attrs)}<br><span class="mono">${p.sku} · EAN ${p.ean}</span></div>
+          ${p.variants.length ? `<div class="field"><label>Variant</label><div class="chips" style="flex-wrap:wrap">${p.variants.map((v) => `<button class="chip ${v === variant ? 'on' : ''}" data-act="pickVariant" data-arg="${E(v)}">${E(v)}</button>`).join('')}</div></div>` : ''}
+          ${p.service || p.gift ? '' : `<section class="card"><div class="card-h"><h2>Availability</h2><span class="small muted">Updated 1 min ago</span></div><div class="list">
+            ${[['This store', stock[0], 'store'], [near[0], stock[1], 'store'], [near[1], stock[2], 'store'], ['Online warehouse', stock[3], 'truck']].map(([l, n, ic]) => `<div class="li">${I(ic, 'width="20" height="20"')}<span class="grow">${l}</span><b class="num ${n ? '' : 'down'}">${n ? n + ' available' : 'None'}</b></div>`).join('')}
+          </div></section>`}
+          ${S.offline ? '<div class="callout warn">' + I('off') + '<span>Offline: showing stock from the last sync (09:40). Ship-to-customer orders are queued and sent when back online.</span></div>' : ''}
+        </div></div>`,
+      footer: `<div class="actionbar"><div class="g2">
+        <button class="btn big ${none ? 'primary' : ''}" data-act="shipItem" data-arg="${p.sku}" ${p.service || p.gift ? 'disabled' : ''}>${I('truck')}Ship to customer</button>
+        <button class="btn big ${none ? '' : 'primary'}" data-act="addItem" data-arg="${p.sku}" ${none ? 'disabled' : ''}>${I('plus')}Add to sale</button></div></div>`,
+    };
+  };
+  Object.assign(A, {
+    pickVariant: (v) => { POS.cur().variant = v; POS.render(); },
+    addItem: (sku) => { POS.addLine(sku, POS.cur().variant); POS.toast('Added to sale'); POS.tab('sell'); },
+    shipItem: (sku) => { POS.addLine(sku, POS.cur().variant, { ship: true }); POS.toast('Added as ship-to-customer (endless aisle)'); POS.tab('sell'); },
+  });
+
+  /* ================= Sell (cart) ================= */
+  function lineHTML(l) {
+    const p = POS.product(l.sku);
+    const disc = l.manual + l.promo;
+    return `<div class="cart-line ${l.ret ? 'ret' : ''}">${POS.art(p, 'sm')}
+      <div style="min-width:0"><div class="t">${E(p.name)}</div><div class="s">${E(l.variant)}${l.variant ? ' · ' : ''}<span class="mono">${p.sku}</span></div>
+        ${l.ret ? '<span class="badge warn" style="margin-top:4px">Return</span>' : ''}${l.ship ? '<span class="badge info" style="margin-top:4px">' + I('truck', 'width="13" height="13"') + 'Ship to customer</span>' : ''}
+        ${l.note ? `<div class="s">✎ ${E(l.note)}</div>` : ''}
+        ${l.promo ? `<div class="promo">${E(l.promoName)}</div>` : ''}${l.manual ? `<div class="promo" style="color:var(--amber)">${l.disc}% off · ${E(l.discReason)}</div>` : ''}
+</div>
+      <div class="price">${disc ? `<div class="was">${M(l.gross)}</div>` : ''}<div class="${l.gross < 0 ? 'down' : ''}">${M(l.gross - disc)}</div></div>
+        <div class="line-acts" style="grid-column:2/-1;margin-top:0">${l.ret ? '' : `<span class="stepper"><button data-act="qty" data-arg="${l.key}|-1" aria-label="Decrease">−</button><span>${l.qty}</span><button data-act="qty" data-arg="${l.key}|1" aria-label="Increase">+</button></span>
+          <button class="btn sm icon" data-act="lineDisc" data-arg="${l.key}" aria-label="Discount" title="Discount">${I('percent')}</button><button class="btn sm icon" data-act="lineNote" data-arg="${l.key}" aria-label="${p.sku === 'ATL-S-ENGRV' ? 'Engraving text' : 'Note'}" title="${p.sku === 'ATL-S-ENGRV' ? 'Engraving text' : 'Note'}">${I('pen')}</button>`}
+          <button class="btn sm icon ghost" data-act="removeLine" data-arg="${l.key}" aria-label="Remove ${E(p.name)}" title="Remove">${I('x')}</button></div></div>`;
+  }
+  function custChip() {
+    const c = S.cart.customer && POS.customer(S.cart.customer);
+    return c ? `<button class="cust-chip set" data-act="openCustomer" data-arg="${c.id}"><span class="avatar">${POS.initials(c.name)}</span><span class="grow"><b>${E(c.name)}</b> <span class="tier">${c.tier}</span><div class="small muted">${c.visits} visits · prefers ${E(c.prefs.toLowerCase())}</div></span><span class="btn sm ghost" data-act="detachCustomer" aria-label="Remove customer">${I('x')}</span></button>`
+      : `<button class="cust-chip" data-act="sheet" data-arg="findCustomer"><span class="avatar">${I('userplus', 'width="20" height="20"')}</span><span class="grow"><b>Add customer</b><div class="small muted">Look up by name, email, phone or loyalty QR</div></span></button>`;
+  }
+  V.sell = () => {
+    const t = POS.totals(), st = POS.store(), sp = D.users.find((u) => u.id === S.cart.salesperson) || S.user;
+    const empty = !t.lines.length;
+    return {
+      title: 'Sale', sub: `${st.code}-${st.device.slice(-2)}-${String(S.seq).padStart(6, '0')} · sold by ${sp.short}`, wide: true,
+      right: `<button class="ibtn" data-act="park" aria-label="Park sale" ${empty ? 'disabled' : ''}>${I('pause')}</button><button class="ibtn" data-act="sheet" data-arg="saleMenu" aria-label="Sale options">${I('grid')}</button>`,
+      body: `<div class="sellwrap"><div class="sell-catalog">${catalog(true)}</div>
+        <div class="stack">
+          <div class="search"><input class="input" id="q-scan" placeholder="Scan or type barcode / SKU" data-enter="scanEnter" aria-label="Scan or type barcode">${I('scan')}<button class="scan" data-act="scanDemo" aria-label="Scan with camera">${I('scan')}</button></div>
+          ${custChip()}
+          <section class="card">${empty ? `<div class="card-b" style="padding:28px 16px;text-align:center;gap:6px">${I('bag', 'width="34" height="34" style="margin:0 auto;color:var(--fg-3)"')}<b>No items yet</b><span class="small muted">Scan a barcode, or add items from Products.</span><button class="btn" data-act="tab" data-arg="products" style="justify-self:center;margin-top:6px">${I('search')}Browse products</button></div>` : `<div class="list">${t.lines.map(lineHTML).join('')}</div>`}</section>
+          ${empty ? '' : `<section class="card"><div class="card-b" style="padding-top:14px"><div class="totals">
+            <div class="r"><span>Subtotal · ${t.units} item${Math.abs(t.units) === 1 ? '' : 's'}</span><span>${M(t.sub)}</span></div>
+            ${t.lineDisc ? `<div class="r promo"><span>Item discounts</span><span>−${M(t.lineDisc)}</span></div>` : ''}
+            ${t.basketPromo ? `<div class="r promo"><span>${t.basketPromoName}</span><span>−${M(t.basketPromo)}</span></div>` : ''}
+            ${t.basketManual ? `<div class="r" style="color:var(--amber)"><span>Sale discount ${S.cart.basketDisc}%</span><span>−${M(t.basketManual)}</span></div>` : ''}
+            <div class="r muted"><span>${st.taxMode === 'inclusive' ? 'Includes ' + st.taxLabel : st.taxLabel + (S.offline ? ' · cached rate' : ' · Avalara')}</span><span>${M(t.tax)}</span></div>
+            <div class="r grand"><span>${t.total < 0 ? 'Refund due' : 'Total'}</span><span class="num">${M(Math.abs(t.total))}</span></div></div></div></section>`}
+        </div></div>`,
+      footer: `<div class="actionbar"><button class="btn big primary block" data-act="checkout" ${empty ? 'disabled' : ''}>${empty ? 'Add items to charge' : t.total < 0 ? `Refund ${M(-t.total)}` : `Charge ${M(t.total)}`}</button></div>${POS.tabbar()}`,
+    };
+  };
+  const findLine = (k) => S.cart.lines.find((l) => l.key === +k);
+  Object.assign(A, {
+    qty: (arg) => { const [k, d] = arg.split('|'); const l = findLine(k); l.qty += +d; if (l.qty <= 0) S.cart.lines = S.cart.lines.filter((x) => x !== l); POS.render(); },
+    removeLine: (k) => { S.cart.lines = S.cart.lines.filter((l) => l.key !== +k); POS.render(); },
+    lineDisc: (k) => POS.sheet('discount', { lineKey: +k, pct: 10, reason: 'Loyalty goodwill' }),
+    lineNote: (k) => POS.sheet('note', { lineKey: +k }),
+    checkout: () => POS.go('checkout'),
+    openCustomer: (id) => POS.go('customer', { id }),
+    detachCustomer: (a, el, e) => { e.stopPropagation(); S.cart.customer = null; POS.render(); },
+    park: () => {
+      if (!S.cart.lines.length) return;
+      const c = S.cart.customer && POS.customer(S.cart.customer);
+      S.parked.unshift({ id: 'P-0' + (92 + S.parked.length), by: S.user.short, at: new Date().toTimeString().slice(0, 5), customer: c ? c.name : 'Guest', lines: S.cart.lines.map((l) => ({ sku: l.sku, variant: l.variant, qty: l.qty, note: l.note })) });
+      S.cart = POS.newCart(); S.cart.salesperson = S.user.id; POS.toast('Sale parked. Any device in this store can resume it for 24 hours.');
+    },
+  });
+
+  /* Sale menu sheet */
+  SH.saleMenu = () => ({
+    title: 'Sale options',
+    body: `<div class="card"><div class="list">
+      <button class="li" data-act="basketDisc">${I('percent')}<span class="grow"><span class="t">Discount whole sale</span><div class="s">Your limit: ${S.user.discountLimit}% without approval</div></span></button>
+      <button class="li" data-act="pickSalesperson">${I('users')}<span class="grow"><span class="t">Salesperson / split commission</span><div class="s">Currently ${(D.users.find((u) => u.id === S.cart.salesperson) || S.user).short}</div></span></button>
+      <button class="li" data-act="addGiftCard">${I('gift')}<span class="grow"><span class="t">Sell a gift card</span><div class="s">Activated through the payment terminal</div></span></button>
+      <button class="li" data-act="taxExempt">${I('credit')}<span class="grow"><span class="t">Tax exemption</span><div class="s">Certificate number, photo and manager approval</div></span></button>
+      <button class="li" data-act="voidSale">${I('x', 'style="color:var(--bad)"')}<span class="grow"><span class="t" style="color:var(--bad)">Void sale</span><div class="s">Clears all items. Recorded in the audit log.</div></span></button>
+    </div></div>`,
+  });
+  Object.assign(A, {
+    basketDisc: () => POS.sheet('discount', { lineKey: null, pct: 5, reason: 'Loyalty goodwill' }),
+    pickSalesperson: () => { const i = D.users.findIndex((u) => u.id === S.cart.salesperson); S.cart.salesperson = D.users[(i + 1) % D.users.length].id; S.sheet = null; POS.toast('Salesperson: ' + D.users.find((u) => u.id === S.cart.salesperson).short); },
+    addGiftCard: () => { POS.addLine('ATL-GC'); S.sheet = null; POS.toast('Gift card added. It is activated when the sale completes.'); },
+    taxExempt: () => { S.sheet = null; POS.sheet('approval', { reason: 'Tax exemption needs a manager.', then: 'toast:Tax exemption recorded with certificate EX-2291' }); },
+    voidSale: () => { S.cart = POS.newCart(); S.cart.salesperson = S.user.id; S.sheet = null; POS.toast('Sale voided'); },
+  });
+
+  /* Discount sheet with approval when over the user's limit */
+  SH.discount = (sh) => {
+    const l = sh.lineKey ? findLine(sh.lineKey) : null;
+    const over = sh.pct > S.user.discountLimit;
+    return {
+      title: l ? 'Item discount' : 'Sale discount',
+      body: `${l ? `<div class="row">${POS.art(POS.product(l.sku), 'sm')}<div class="grow"><b>${E(POS.product(l.sku).name)}</b><div class="small muted">${M(l.price)} × ${l.qty}</div></div></div>` : ''}
+        <div class="field"><label>Percentage off</label><div class="chips" style="flex-wrap:wrap">${[5, 10, 15, 20, 30].map((p) => `<button class="chip ${sh.pct === p ? 'on' : ''}" data-act="discPct" data-arg="${p}">${p}%</button>`).join('')}</div></div>
+        <div class="field"><label for="disc-reason">Reason</label><select class="input" id="disc-reason" data-change="discReason">${['Loyalty goodwill', 'Damaged box', 'Price match', 'Employee purchase', 'Display item'].map((r) => `<option ${r === sh.reason ? 'selected' : ''}>${r}</option>`).join('')}</select></div>
+        ${over ? `<div class="callout warn">${I('lock')}<span><b>Manager approval needed.</b> ${sh.pct}% is above your ${S.user.discountLimit}% limit as ${S.user.role}.</span></div>` : `<div class="callout good">${I('check')}<span>Within your ${S.user.discountLimit}% limit. No approval needed.</span></div>`}`,
+      footer: `<button class="btn big primary" data-act="applyDisc">${over ? 'Request approval' : 'Apply discount'}</button>`,
+    };
+  };
+  Object.assign(A, {
+    discPct: (p) => { S.sheet.pct = +p; POS.render(); },
+    discReason: (v) => { S.sheet.reason = v; },
+    applyDisc: () => {
+      const { lineKey, pct, reason } = S.sheet;
+      const apply = () => { if (lineKey) { const l = findLine(lineKey); l.disc = pct; l.discReason = reason; } else S.cart.basketDisc = pct; };
+      if (pct > S.user.discountLimit) { POS.pendingApproval = () => { apply(); POS.toast(`${pct}% discount approved by Sarah L.`); }; POS.sheet('approval', { reason: `${pct}% discount (${reason}) is above ${S.user.short}'s ${S.user.discountLimit}% limit.` }); }
+      else { apply(); S.sheet = null; POS.toast(`${pct}% discount applied`); }
+    },
+  });
+
+  /* Manager approval: PIN on this device, or a push to the manager's phone */
+  SH.approval = (sh) => ({
+    title: 'Manager approval',
+    body: `<div class="callout warn">${I('lock')}<span>${E(sh.reason)}</span></div>
+      <div class="chips"><button class="chip ${sh.mode !== 'remote' ? 'on' : ''}" data-act="apprMode" data-arg="pin">PIN on this device</button><button class="chip ${sh.mode === 'remote' ? 'on' : ''}" data-act="apprMode" data-arg="remote">Ask remotely</button></div>
+      ${sh.mode === 'remote' ? (sh.waiting ? `<div class="terminal"><div class="pulse">${I('sms')}</div><b>Waiting for Sarah L.</b><span class="small muted">Request sent to her phone. It is bound to this sale and this action only.</span></div>` : `<div class="card"><div class="list">${['Sarah Lindqvist · Store Manager · on floor', 'Chloé Martin · District Manager'].map((m, i) => `<button class="li" data-act="apprRemote" data-arg="${i}"><span class="avatar">${POS.initials(m)}</span><span class="grow t">${m}</span>${I('chev', 'width="18" height="18"')}</button>`).join('')}</div></div>`)
+        : `<div class="small muted" style="text-align:center">Sarah Lindqvist · Store Manager</div><div class="pin-dots">${[0, 1, 2, 3].map((i) => `<i class="${(sh.pin || '').length > i ? 'on' : ''}"></i>`).join('')}</div>
+        <div class="keypad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0, '⌫'].map((k) => (k === '' ? '<span></span>' : `<button data-act="apprKey" data-arg="${k}">${k}</button>`)).join('')}</div>`}`,
+  });
+  function approved() {
+    const then = S.sheet.then;
+    S.sheet = null;
+    if (POS.pendingApproval) { const f = POS.pendingApproval; POS.pendingApproval = null; f(); }
+    else if (then && then.startsWith('toast:')) POS.toast(then.slice(6));
+    else POS.render();
+  }
+  Object.assign(A, {
+    apprMode: (m) => { S.sheet.mode = m; S.sheet.pin = ''; POS.render(); },
+    apprKey: (k) => { const sh = S.sheet; sh.pin = k === '⌫' ? (sh.pin || '').slice(0, -1) : ((sh.pin || '') + k).slice(0, 4); if (sh.pin.length === 4) approved(); else POS.render(); },
+    apprRemote: () => { S.sheet.waiting = true; POS.render(); setTimeout(() => { if (S.sheet && S.sheet.type === 'approval') approved(); }, 1800); },
+  });
+
+  /* Note / engraving sheet */
+  SH.note = (sh) => {
+    const l = findLine(sh.lineKey), eng = l.sku === 'ATL-S-ENGRV';
+    return {
+      title: eng ? 'Engraving text' : 'Item note',
+      body: `<div class="field"><label for="note-text">${eng ? 'Text to engrave (max 20 characters)' : 'Note (printed on receipt if selected)'}</label><input class="input" id="note-text" maxlength="${eng ? 20 : 120}" value="${E(l.note)}" placeholder="${eng ? 'For A., 10 years' : 'Gift wrap, repair details…'}"></div>
+        <label class="row">${POS.switch('note-print', true, 'Print on receipt')}<span>Print on receipt</span></label>`,
+      footer: `<button class="btn big primary" data-act="saveNote">Save</button>`,
+    };
+  };
+  A.saveNote = () => { findLine(S.sheet.lineKey).note = document.getElementById('note-text').value; S.sheet = null; POS.render(); };
+
+  /* ================= Customers ================= */
+  function custResults() {
+    const q = S.custQ.trim().toLowerCase();
+    return D.customers.filter((c) => !q || (c.name + c.email + c.phone + c.id).toLowerCase().includes(q));
+  }
+  const custRow = (c, act) => `<button class="li" data-act="${act}" data-arg="${c.id}"><span class="avatar">${POS.initials(c.name)}</span><span class="grow"><span class="t">${E(c.name)}</span> <span class="tier">${c.tier}</span><div class="s">${c.email.replace(/^(.).*@(.).*$/, '$1•••@$2•••.com')} · ${c.phone.slice(0, -4).replace(/\d/g, '•')}${c.phone.slice(-4)}</div></span>${I('chev', 'width="18" height="18"')}</button>`;
+  V.customers = () => ({
+    title: 'Customers', sub: S.offline ? 'Offline · searching customers cached on this device' : 'Search the customer database',
+    right: `<button class="ibtn" data-act="sheet" data-arg="newCustomer" aria-label="New customer">${I('userplus')}</button>`,
+    body: `<div class="search"><input class="input" id="q-cust" value="${E(S.custQ)}" placeholder="Name, email, phone or loyalty ID" data-input="setCustQ" aria-label="Search customers">${I('search')}<button class="scan" data-act="toast" data-arg="Loyalty QR scanned: Olivia Bennett" aria-label="Scan loyalty QR">${I('qr')}</button></div>
+      <section class="card"><div class="list">${custResults().map((c) => custRow(c, 'openCustomer')).join('') || '<div class="li s">No match. Create a new customer instead.</div>'}</div></section>
+      <button class="btn block" data-act="sheet" data-arg="newCustomer">${I('userplus')}New customer</button>`,
+  });
+  A.setCustQ = (v) => { S.custQ = v; POS.render(); };
+
+  SH.findCustomer = () => ({
+    title: 'Add customer to sale',
+    body: `<div class="search"><input class="input" id="q-cust2" value="${E(S.custQ)}" placeholder="Name, email, phone or loyalty ID" data-input="setCustQ" aria-label="Search customers">${I('search')}<button class="scan" data-act="attachCustomer" data-arg="C-88213490" aria-label="Scan loyalty QR">${I('qr')}</button></div>
+      <section class="card"><div class="list">${custResults().map((c) => custRow(c, 'attachCustomer')).join('')}</div></section>`,
+    footer: `<button class="btn" data-act="sheet" data-arg="newCustomer">${I('userplus')}Create new customer</button>`,
+  });
+  A.attachCustomer = (id) => { S.cart.customer = id; S.sheet = null; POS.toast(POS.customer(id).name + ' added to sale'); };
+
+  SH.newCustomer = () => {
+    const st = POS.store(), eu = st.region === 'EMEA';
+    return {
+      title: 'New customer',
+      body: `<div class="g2"><div class="field"><label for="nc-first">First name *</label><input class="input" id="nc-first" value="Emma"></div><div class="field"><label for="nc-last">Last name *</label><input class="input" id="nc-last" value="Novak"></div></div>
+        <div class="field"><label for="nc-email">Email *</label><input class="input" id="nc-email" type="email" value="emma.novak@example.com"></div>
+        <div class="field"><label for="nc-phone">Mobile</label><input class="input" id="nc-phone" value="${{ US: '+1 ', DE: '+49 ', JP: '+81 ' }[st.country]}"></div>
+        ${eu ? '' : `<div class="field"><label for="nc-dob">Birthday (optional)</label><input class="input" id="nc-dob" placeholder="MM-DD"></div>`}
+        <div class="card"><div class="card-b" style="padding-top:12px">
+          <label class="row">${POS.switch('nc-c1', false, 'Marketing email')}<span class="grow small">Send me news and offers by email</span></label>
+          <label class="row">${POS.switch('nc-c2', false, 'Marketing SMS')}<span class="grow small">Send me offers by text message</span></label>
+          <div class="small muted">Consent text v4 (${st.locale}) is stored with time, store and associate. Fields shown follow ${st.country} rules${eu ? ': birthday and gender are not collected in the EU' : ''}.</div></div></div>
+        <div class="callout">${I('check')}<span>No duplicate found for this email or phone.</span></div>`,
+      footer: `<button class="btn big primary" data-act="createCustomer">Create and add to sale</button>`,
+    };
+  };
+  A.createCustomer = () => {
+    const c = { id: 'C-' + (S.offline ? 'TEMP-0012' : '90011873'), name: `${document.getElementById('nc-first').value} ${document.getElementById('nc-last').value}`, tier: 'Member', email: document.getElementById('nc-email').value, phone: '+1 212 555 0199', since: '2026', ltv: 0, visits: 0, prefs: '—', wrist: '—', receipt: 'Email', credit: 0, consent: { email: document.getElementById('nc-c1').checked, sms: document.getElementById('nc-c2').checked }, history: [], wishlist: [] };
+    D.customers.unshift(c); S.cart.customer = c.id; S.sheet = null;
+    POS.toast(S.offline ? 'Customer saved with a temporary ID. It will be matched when back online.' : 'Customer created and added to sale');
+  };
+
+  V.customer = (cur) => {
+    const c = POS.customer(cur.id);
+    return {
+      title: E(c.name), sub: `${c.tier} · customer since ${c.since}`, wide: true,
+      body: `<div class="two-col" style="display:grid;gap:14px"><div class="stack">
+        <section class="card"><div class="card-b" style="padding-top:14px">
+          <div class="row"><span class="avatar lg">${POS.initials(c.name)}</span><div class="grow"><b style="font-size:18px">${E(c.name)}</b> <span class="tier">${c.tier}</span><div class="small muted mono">${c.id}</div></div></div>
+          <div class="g3" style="text-align:center">${[['Spent', M(c.ltv * { USD: 1, EUR: 0.92, JPY: 149 }[POS.store().currency])], ['Visits', c.visits], ['Store credit', M(c.credit)]].map(([a, b]) => `<div><div class="eyebrow">${a}</div><b class="num">${b}</b></div>`).join('')}</div>
+          <dl class="kv"><dt>Email</dt><dd>${cur.reveal ? E(c.email) : c.email.replace(/^(.).*@(.).*$/, '$1•••@$2•••.com')}</dd><dt>Mobile</dt><dd>${cur.reveal ? E(c.phone) : '•••• ' + c.phone.slice(-4)}</dd><dt>Receipts by</dt><dd>${c.receipt}</dd><dt>Marketing</dt><dd>${c.consent.email ? 'Email ✓' : 'Email ✗'} · ${c.consent.sms ? 'SMS ✓' : 'SMS ✗'}</dd></dl>
+          ${cur.reveal ? '<div class="small muted">Contact details revealed · logged to audit</div>' : `<button class="btn sm" data-act="revealCust" style="justify-self:start">${I('eye')}Show contact details</button>`}
+        </div></section>
+        <section class="card"><div class="card-h"><h2>Preferences</h2></div><div class="card-b"><dl class="kv"><dt>Likes</dt><dd>${E(c.prefs)}</dd><dt>Wrist size</dt><dd>${c.wrist}</dd></dl></div></section></div>
+        <div class="stack">
+        ${c.wishlist.length ? `<section class="card"><div class="card-h"><h2>Wishlist</h2></div><div class="list">${c.wishlist.map((s) => { const p = POS.product(s); return `<div class="li">${POS.art(p, 'sm')}<span class="grow"><span class="t">${E(p.name)}</span><div class="s">${M(POS.price(p))} · ${D.stock[s][0]} in store</div></span><button class="btn sm" data-act="quickAdd" data-arg="${s}">Add</button></div>`; }).join('')}</div></section>` : ''}
+        <section class="card"><div class="card-h"><h2>Purchase history</h2></div><div class="list">${c.history.map(([d, n, v]) => `<div class="li"><span class="grow"><span class="t">${E(n)}</span><div class="s">${d}</div></span><b class="num">${M(v * { USD: 1, EUR: 0.96, JPY: 150 }[POS.store().currency])}</b></div>`).join('') || '<div class="li s">No purchases yet.</div>'}</div></section>
+        <section class="card"><div class="card-h"><h2>Recommended</h2><span class="small muted">Based on purchases</span></div><div class="list">${['ATL-A-90012', 'ATL-J-20077'].map((s) => { const p = POS.product(s); return `<div class="li">${POS.art(p, 'sm')}<span class="grow"><span class="t">${E(p.name)}</span><div class="s">${M(POS.price(p))}</div></span><button class="btn sm" data-act="quickAdd" data-arg="${s}">Add</button></div>`; }).join('')}</div></section></div></div>`,
+      footer: `<div class="actionbar"><button class="btn big primary block" data-act="attachFromProfile" data-arg="${c.id}" ${S.cart.customer === c.id ? 'disabled' : ''}>${S.cart.customer === c.id ? 'Added to current sale' : 'Add to current sale'}</button></div>`,
+    };
+  };
+  Object.assign(A, {
+    revealCust: () => { POS.cur().reveal = true; POS.toast('Contact details shown. This view is logged.'); },
+    attachFromProfile: (id) => { S.cart.customer = id; POS.toast(POS.customer(id).name + ' added to sale'); POS.tab('sell'); },
+  });
+
+  /* ================= Checkout ================= */
+  const TENDER_ICON = { Card: 'card', Cash: 'cash', 'Gift card': 'gift', 'Store credit': 'credit', 'Pay by link': 'link', Voucher: 'tag', PayPay: 'qr' };
+  const TENDER_SUB = { Card: 'Tap, insert or wallet on terminal', Cash: 'Change given in cash', 'Gift card': 'Scan or type card number', 'Store credit': 'From customer balance', 'Pay by link': 'Send link by SMS or email', Voucher: 'Paper voucher code', PayPay: 'Customer scans QR' };
+  V.checkout = () => {
+    const t = POS.totals(), st = POS.store(), refund = t.total < 0;
+    const tenders = refund ? ['Card', 'Cash', 'Store credit'] : st.tenders;
+    return {
+      title: refund ? 'Refund' : 'Payment', sub: `${t.units} item${Math.abs(t.units) === 1 ? '' : 's'} · total ${M(Math.abs(t.total))}`, wide: true,
+      body: `<div class="due"><div class="lbl">${refund ? 'Refund due' : t.payments?.length || S.cart.payments.length ? 'Remaining' : 'Amount due'}</div><div class="amt">${M(Math.abs(t.remaining))}</div>
+          ${S.cart.payments.length ? `<div class="small muted">Paid ${M(t.paid)} of ${M(t.total)}</div>` : ''}</div>
+        ${S.cart.payments.length ? `<section class="card"><div class="list">${S.cart.payments.map((p, i) => `<div class="paid-line">${I(TENDER_ICON[p.type] || 'card', 'width="18" height="18"')}<span class="grow">${E(p.label)}<div class="small muted mono">${E(p.ref || '')}</div></span><b class="num">${M(p.amount)}</b>${p.type === 'Cash' || p.type === 'Voucher' ? `<button class="btn sm ghost" data-act="removePay" data-arg="${i}" aria-label="Remove payment">${I('x')}</button>` : ''}</div>`).join('')}</div></section>` : ''}
+        <div class="eyebrow">${refund ? 'Refund to' : S.cart.payments.length ? 'Pay the rest with' : 'Choose payment'}</div>
+        <div class="tender-grid">${tenders.map((tn) => {
+          const dis = (tn === 'Pay by link' && S.offline) || (tn === 'Store credit' && !refund && !(S.cart.customer && POS.customer(S.cart.customer).credit));
+          return `<button class="tender" data-act="tender" data-arg="${tn}" ${dis ? 'disabled style="opacity:.45"' : ''}>${I(TENDER_ICON[tn])}<span>${refund && tn === 'Card' ? 'Original card' : tn}</span><span class="s">${refund && tn === 'Card' ? 'Referenced refund, no card needed' : dis && tn === 'Pay by link' ? 'Unavailable offline' : dis ? 'Add a customer with credit' : TENDER_SUB[tn]}</span></button>`;
+        }).join('')}</div>
+        ${S.offline ? `<div class="callout warn">${I('off')}<span>Offline: cards are approved by the terminal in store-and-forward mode up to ${M(st.currency === 'JPY' ? 100000 : 1000)}. ${st.fiscal && st.country === 'DE' ? 'TSE signing is retried on reconnect.' : ''}</span></div>` : ''}`,
+      footer: `<div class="actionbar"><button class="btn block" data-act="back">Back to sale</button></div>`,
+    };
+  };
+  Object.assign(A, {
+    removePay: (i) => { S.cart.payments.splice(+i, 1); POS.render(); },
+    tender: (tn) => {
+      const t = POS.totals(), refund = t.total < 0;
+      if (refund) {
+        S.cart.payments.push({ type: tn, label: tn === 'Card' ? 'Refund to VISA •••• 4417' : tn === 'Cash' ? 'Cash refund' : 'Store credit issued', amount: t.remaining, ref: tn === 'Card' ? 'Referenced refund 8826 1101 4471 2209' : '' });
+        return finish();
+      }
+      if (tn === 'Store credit') { const c = POS.customer(S.cart.customer); const amt = Math.min(c.credit, t.remaining); c.credit -= amt; S.cart.payments.push({ type: tn, label: 'Store credit · ' + c.name, amount: amt }); return POS.totals().remaining <= 0 ? finish() : POS.render(); }
+      POS.sheet('pay', { tn, amount: t.remaining, cash: '', stage: 'enter' });
+    },
+  });
+
+  SH.pay = (sh) => {
+    const t = POS.totals(), st = POS.store();
+    if (sh.tn === 'Cash') {
+      const tendered = sh.cash === '' ? 0 : +sh.cash / (POS.dec() ? 100 : 1);
+      const change = POS.round(tendered - t.remaining);
+      return {
+        title: 'Cash',
+        body: `<div class="due" style="padding-top:0"><div class="lbl">Due ${M(t.remaining)} · tendered</div><div class="amt">${M(tendered)}</div><div class="${change >= 0 ? 'up' : 'muted'}" style="font-weight:650">${change >= 0 ? 'Change ' + M(change) : 'Still due ' + M(-change)}</div></div>
+          <div class="chips" style="flex-wrap:wrap;justify-content:center"><button class="chip" data-act="cashQuick" data-arg="${t.remaining}">Exact</button>${st.quick.filter((q) => q >= t.remaining * 0.2).map((q) => `<button class="chip" data-act="cashQuick" data-arg="${q}">${M(q)}</button>`).join('')}</div>
+          <div class="keypad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '00', 0, '⌫'].map((k) => `<button data-act="cashKey" data-arg="${k}">${k}</button>`).join('')}</div>`,
+        footer: `<button class="btn big primary" data-act="cashOk" ${tendered > 0 ? '' : 'disabled'}>${change >= 0 ? `Take ${M(tendered)} · give ${M(change)}` : `Take ${M(tendered)} (partial)`}</button>`,
+      };
+    }
+    if (sh.stage === 'wait') {
+      const what = { Card: ['card', 'Ask the customer to tap, insert or use their wallet', st.terminal], 'Pay by link': ['link', 'Link sent. Waiting for the customer to pay on their phone.', 'Adyen pay-by-link · expires in 30 min'], PayPay: ['qr', 'Customer scans the QR code with PayPay', 'Dynamic QR shown on customer display'], 'Gift card': ['gift', 'Checking balance…', 'Givex'] }[sh.tn] || ['card', '', ''];
+      return { title: sh.tn, noClose: true, body: `<div class="terminal"><div class="pulse">${I(what[0])}</div><b style="font-size:26px" class="num">${M(sh.amount)}</b><span>${what[1]}</span><span class="small muted">${what[2]}</span></div>`, footer: `<button class="btn" data-act="cancelPay">Cancel on terminal</button>` };
+    }
+    const max = t.remaining;
+    return {
+      title: sh.tn,
+      body: `${sh.tn === 'Gift card' || sh.tn === 'Voucher' ? `<div class="field"><label for="gc-no">${sh.tn === 'Gift card' ? 'Gift card number' : 'Voucher code'}</label><input class="input mono" id="gc-no" value="${sh.tn === 'Gift card' ? '6036 2810 4471 1188' : 'XMAS-20-9KQ2'}"></div>` : ''}
+        ${sh.tn === 'Pay by link' ? `<div class="field"><label for="pbl-to">Send to</label><input class="input" id="pbl-to" value="${S.cart.customer ? POS.esc(POS.customer(S.cart.customer).phone) : '+1 '}"></div>` : ''}
+        <div class="field"><label for="pay-amt">Amount ${sh.tn === 'Card' ? '(change it to split across cards)' : ''}</label><input class="input num" id="pay-amt" inputmode="decimal" value="${POS.dec() ? max.toFixed(2) : max}" style="font-size:22px;font-weight:700;min-height:56px"></div>
+        <div class="chips">${[['Full', max], ['Half', POS.round(max / 2)], ['Third', POS.round(max / 3)]].map(([l, v]) => `<button class="chip" data-act="payAmt" data-arg="${v}">${l} · ${M(v)}</button>`).join('')}</div>`,
+      footer: `<button class="btn big primary" data-act="payGo">${{ Card: 'Send to terminal', 'Pay by link': 'Send link', PayPay: 'Show QR code', 'Gift card': 'Redeem', Voucher: 'Redeem' }[sh.tn]}</button>`,
+    };
+  };
+  Object.assign(A, {
+    cashKey: (k) => { const sh = S.sheet; sh.cash = k === '⌫' ? sh.cash.slice(0, -1) : (sh.cash + k).replace(/^0+/, '').slice(0, 9); POS.render(); },
+    cashQuick: (v) => { S.sheet.cash = String(Math.round(+v * (POS.dec() ? 100 : 1))); POS.render(); },
+    cashOk: () => {
+      const t = POS.totals(); const tendered = +S.sheet.cash / (POS.dec() ? 100 : 1);
+      const amt = Math.min(tendered, t.remaining);
+      S.cart.payments.push({ type: 'Cash', label: `Cash · tendered ${M(tendered)}`, amount: POS.round(amt) });
+      S.cart.change = Math.max(0, POS.round(tendered - t.remaining));
+      S.drawer.cashSales += amt;
+      S.sheet = null;
+      if (POS.totals().remaining <= 0) finish(); else POS.render();
+    },
+    payAmt: (v) => { document.getElementById('pay-amt').value = POS.dec() ? (+v).toFixed(2) : v; },
+    payGo: () => {
+      const t = POS.totals(); let amt = Math.min(+document.getElementById('pay-amt').value || 0, t.remaining);
+      const tn = S.sheet.tn;
+      if (tn === 'Voucher') { amt = Math.min(20, amt); S.cart.payments.push({ type: tn, label: 'Voucher XMAS-20-9KQ2', amount: amt }); S.sheet = null; return POS.totals().remaining <= 0 ? finish() : POS.render(); }
+      if (tn === 'Gift card') amt = Math.min({ USD: 75, EUR: 75, JPY: 10000 }[POS.store().currency], amt);
+      S.sheet.amount = POS.round(amt); S.sheet.stage = 'wait'; POS.render();
+      const wait = S.sheet;
+      setTimeout(() => {
+        if (S.sheet !== wait) return;
+        const ref = '88' + Math.floor(1e13 + Math.random() * 9e13);
+        const label = { Card: S.offline ? 'VISA •••• 4417 · offline approved' : 'VISA •••• 4417 · contactless', 'Pay by link': 'Pay-by-link · Apple Pay', PayPay: 'PayPay', 'Gift card': 'Gift card •••• 1188 (balance used)' }[tn];
+        S.cart.payments.push({ type: tn, label, amount: wait.amount, ref: tn === 'Gift card' ? 'Givex auth 551902' : 'PSP ' + ref });
+        S.sheet = null;
+        if (POS.totals().remaining <= 0) finish(); else POS.toast(`${M(wait.amount)} approved. ${M(POS.totals().remaining)} left to pay.`);
+      }, tn === 'Pay by link' ? 2400 : 1700);
+    },
+    cancelPay: () => { S.sheet = null; POS.toast('Payment cancelled on terminal'); },
+  });
+
+  /* Completes the sale: number, fiscal signing, queue when offline. */
+  function finish() {
+    const st = POS.store(), t = POS.totals();
+    const number = `${st.code.slice(-3)}-${st.device.slice(-2)}-${String(S.seq).padStart(6, '0')}`;
+    S.last = { cart: JSON.parse(JSON.stringify(S.cart)), t, number, at: new Date().toTimeString().slice(0, 5), change: S.cart.change || 0, offline: S.offline, training: S.training, channel: (S.cart.customer && POS.customer(S.cart.customer).receipt) || st.receiptDefault, gift: false, sent: null };
+    if (!S.training) { S.seq += 1; S.myDay.txns += t.total > 0 ? 1 : 0; S.myDay.sales += Math.max(0, t.total) / { USD: 1, EUR: 0.92, JPY: 149 }[st.currency]; S.myDay.units += Math.max(0, t.units); if (S.offline) S.queued += 1; }
+    S.cart = POS.newCart(); S.cart.salesperson = S.user.id; S.sheet = null;
+    S.stack = [{ v: 'done' }];
+    POS.render();
+  }
+  POS.finish = finish;
+
+  /* ================= Sale complete & receipt ================= */
+  function receiptHTML(L) {
+    const st = POS.store();
+    return `<div class="receipt" aria-label="Receipt preview">
+      <div class="c b" style="letter-spacing:.2em;font-size:13px">ATLAS TIME</div><div class="c">${E(st.name)} · ${st.city}</div>
+      ${L.training ? '<div class="c b">*** TRAINING – NOT A RECEIPT ***</div>' : ''}
+      <div class="rule"></div><div class="ln"><span>${L.t.total < 0 ? 'CREDIT NOTE' : L.gift ? 'GIFT RECEIPT' : 'RECEIPT'}</span><span>${L.number}</span></div><div class="ln"><span>13.10.2026 ${L.at}</span><span>#${S.user.id}</span></div><div class="rule"></div>
+      ${L.t.lines.map((l) => `<div class="ln"><span>${l.qty} × ${E(POS.product(l.sku).name).slice(0, 22)}</span><span>${L.gift ? '' : M(l.gross)}</span></div>${l.promo || l.manual ? `<div class="ln"><span>  ${E(l.promoName || l.discReason)}</span><span>${L.gift ? '' : '−' + M(l.promo + l.manual)}</span></div>` : ''}${l.note ? `<div>  "${E(l.note)}"</div>` : ''}${l.ship ? '<div>  Ships to customer</div>' : ''}`).join('')}
+      ${L.gift ? '' : `<div class="rule"></div>${L.t.basketPromo ? `<div class="ln"><span>${L.t.basketPromoName}</span><span>−${M(L.t.basketPromo)}</span></div>` : ''}<div class="ln b"><span>TOTAL</span><span>${M(L.t.total)}</span></div>
+      <div class="ln"><span>${st.taxMode === 'inclusive' ? 'incl. ' : ''}${st.taxLabel}</span><span>${M(L.t.tax)}</span></div><div class="rule"></div>
+      ${L.cart.payments.map((p) => `<div class="ln"><span>${E(p.label)}</span><span>${M(p.amount)}</span></div>`).join('')}${L.change ? `<div class="ln"><span>Change</span><span>${M(L.change)}</span></div>` : ''}`}
+      ${st.country === 'DE' && !L.training ? `<div class="rule"></div><div>${L.offline ? 'TSE ausgefallen – Signatur folgt' : 'TSE-Signatur: MEUCIQD…k2Q='}</div><div>Signaturzähler: ${88214 + S.seq - 4120}</div><div class="qr"></div>` : ''}
+      ${st.country === 'JP' ? '<div class="rule"></div><div>登録番号 T1234567890123</div>' : ''}
+      <div class="rule"></div><div class="small">Returns within ${st.returnDays} days with receipt.</div><div class="c">*${L.number.replace(/-/g, '')}*</div></div>`;
+  }
+  V.done = () => {
+    const L = S.last, st = POS.store(), refund = L.t.total < 0;
+    const chans = [['Email', 'mail'], ['SMS', 'sms'], ['Print', 'printer'], ['QR', 'qr'], ['None', 'x']];
+    return {
+      title: refund ? 'Refund complete' : 'Sale complete', sub: `${L.number} · ${L.at}`, wide: true,
+      body: `<div class="two-col" style="display:grid;gap:14px"><div class="stack">
+          <div class="done-mark">${I('check')}</div>
+          <div class="due" style="padding-top:4px"><div class="lbl">${refund ? 'Refunded' : 'Paid'}</div><div class="amt">${M(Math.abs(L.t.total))}</div>${L.change ? `<div style="font-size:20px;font-weight:700" class="up">Give change ${M(L.change)}</div>` : ''}</div>
+          ${st.fiscal ? `<div class="callout ${L.offline && st.country === 'DE' ? 'warn' : 'good'}">${I(L.offline && st.country === 'DE' ? 'alert' : 'check')}<span>${st.country === 'DE' ? (L.offline ? 'TSE unreachable. Receipt marked "TSE ausgefallen"; signature is added when back online.' : 'Signed by TSE · counter ' + (88214 + S.seq - 4121)) : st.fiscal}</span></div>` : ''}
+          ${L.offline ? `<div class="callout warn">${I('off')}<span>Stored on this device and queued. It syncs to Core POS, SAP and inventory automatically.</span></div>` : ''}
+          <section class="card"><div class="card-h"><h2>Receipt</h2>${st.country === 'DE' ? '<span class="badge warn">Must be offered (DE)</span>' : ''}</div><div class="card-b">
+            <div class="g3" style="grid-template-columns:repeat(5,1fr)">${chans.map(([c, ic]) => `<button class="tender" style="min-height:64px;justify-items:center;padding:8px 4px;${L.channel === c ? 'border-color:var(--accent);background:var(--accent-soft)' : ''}" data-act="rcptChan" data-arg="${c}">${I(ic)}<span class="small">${c}</span></button>`).join('')}</div>
+            ${L.channel === 'Email' ? `<input class="input" id="rc-email" value="${L.cart.customer ? E(POS.customer(L.cart.customer).email) : ''}" placeholder="customer@email.com" aria-label="Email address">` : L.channel === 'SMS' ? `<input class="input" id="rc-sms" value="${L.cart.customer ? E(POS.customer(L.cart.customer).phone) : ''}" placeholder="Mobile number" aria-label="Mobile number">` : ''}
+            <label class="row">${POS.switch('rc-gift', L.gift, 'Gift receipt', 'rcptGift')}<span class="grow">Also give a gift receipt (no prices)</span></label>
+            <button class="btn primary" data-act="rcptSend">${L.sent ? I('check') + 'Sent · send again' : L.channel === 'None' ? 'Skip receipt' : 'Send receipt'}</button>
+          </div></section></div>
+        <div class="stack"><div class="eyebrow" style="text-align:center">Preview</div>${receiptHTML(L)}</div></div>`,
+      footer: `<div class="actionbar"><button class="btn big primary block" data-act="newSale">${I('plus')}New sale</button></div>`,
+    };
+  };
+  Object.assign(A, {
+    rcptChan: (c) => { S.last.channel = c; S.last.sent = null; POS.render(); },
+    rcptGift: (on) => { S.last.gift = on; POS.render(); },
+    rcptSend: () => { S.last.sent = true; POS.toast(S.last.channel === 'None' ? 'No receipt' : S.last.channel === 'Print' ? `Printing on ${POS.store().printer}` : S.last.channel === 'QR' ? 'QR shown on customer display' : `Receipt sent by ${S.last.channel}`); },
+    newSale: () => POS.tab('sell'),
+  });
+})();
+</script>
+<script>
+/* Views: returns & exchanges, orders to fulfil (BOPIS / ship from store), parked sales,
+   cash & business day (paid in/out, X report, Z close), and More (device, sync, training). */
+(function () {
+  const D = POS.data, S = POS.S, V = POS.V, SH = POS.SH, A = POS.ACT, I = POS.icon, E = POS.esc, M = (v) => POS.money(v);
+
+  /* ================= Returns & exchanges ================= */
+  V.returns = (cur) => {
+    const st = POS.store();
+    if (cur.stage === 'found') {
+      const sale = D.pastSale, c = POS.customer(sale.customer);
+      cur.sel = cur.sel || { 0: true };
+      const rows = sale.lines.map((l, i) => { const p = POS.product(l.sku); const paid = i === 1 ? 0 : POS.price(p); return { l, p, paid, i }; });
+      const refund = rows.filter((r) => cur.sel[r.i]).reduce((a, r) => a + r.paid, 0);
+      return {
+        title: 'Return', sub: `Receipt ${st.code.slice(-3)}-${sale.id} · ${sale.date}`, wide: true,
+        body: `<div class="callout good">${I('check')}<span>Within the ${st.returnDays}-day return window · paid by ${sale.tender} · sold by ${sale.associate}</span></div>
+          <button class="cust-chip set"><span class="avatar">${POS.initials(c.name)}</span><span class="grow"><b>${c.name}</b> <span class="tier">${c.tier}</span><div class="small muted">Original customer</div></span></button>
+          <section class="card"><div class="card-h"><h2>Select items to return</h2></div><div class="list">${rows.map((r) => `<label class="li" style="cursor:pointer"><input type="checkbox" ${cur.sel[r.i] ? 'checked' : ''} data-change="retSel" data-i="${r.i}" style="width:22px;height:22px;accent-color:var(--accent)" aria-label="Return ${E(r.p.name)}">${POS.art(r.p, 'sm')}<span class="grow"><span class="t">${E(r.p.name)}</span><div class="s">${E(r.l.variant)}${r.paid === 0 ? ' · was free (promotion)' : ''}</div></span><b class="num">${M(r.paid)}</b></label>`).join('')}</div></section>
+          <div class="g2"><div class="field"><label for="ret-reason">Reason</label><select class="input" id="ret-reason"><option>Changed mind</option><option>Wrong size / fit</option><option>Faulty</option><option>Gift</option></select></div>
+          <div class="field"><label for="ret-disp">Item condition</label><select class="input" id="ret-disp"><option>Resaleable</option><option>Damaged</option><option>Send for repair / warranty</option></select></div></div>
+          <div class="totals card" style="padding:14px"><div class="r"><span>Refund to ${sale.tender}</span><b>${M(refund)}</b></div><div class="small muted">Referenced refund through Adyen: the customer doesn't need the card.</div></div>`,
+        footer: `<div class="actionbar"><div class="g2"><button class="btn big" data-act="retExchange" ${refund || Object.values(cur.sel).some(Boolean) ? '' : 'disabled'}>${I('ret')}Exchange</button><button class="btn big primary" data-act="retRefund" ${Object.values(cur.sel).some(Boolean) ? '' : 'disabled'}>Refund ${M(refund)}</button></div></div>`,
+      };
+    }
+    if (cur.stage === 'noreceipt') {
+      return {
+        title: 'Return without receipt', sub: 'Store credit only · lowest price in the last 90 days',
+        body: `<div class="callout warn">${I('lock')}<span>Non-receipted returns need manager approval and are refunded as store credit.</span></div>
+          <section class="card"><div class="card-h"><h2>Which item?</h2></div><div class="list">${D.products.filter((p) => !p.service && !p.gift).slice(0, 8).map((p) => `<button class="li" data-act="retNoReceipt" data-arg="${p.sku}">${POS.art(p, 'sm')}<span class="grow"><span class="t">${E(p.name)}</span><div class="s">Lowest price 90 days: ${M(POS.round(POS.price(p) * 0.85))}</div></span>${I('chev', 'width="18" height="18"')}</button>`).join('')}</div></section>`,
+      };
+    }
+    return {
+      title: 'Return or exchange', sub: `${st.code} · ${st.returnDays}-day policy`,
+      body: `<div class="search"><input class="input mono" id="ret-q" placeholder="Receipt number, e.g. ${st.code.slice(-3)}-02-004118" data-enter="retFind" aria-label="Receipt number">${I('receipt')}<button class="scan" data-act="retFind" aria-label="Scan receipt barcode">${I('scan')}</button></div>
+        <section class="card"><div class="card-h"><h2>Find the original sale</h2></div><div class="list">
+          <button class="li" data-act="retFind">${I('scan')}<span class="grow"><span class="t">Scan receipt barcode or QR</span><div class="s">Works for receipts from the previous POS too</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retFind">${I('card')}<span class="grow"><span class="t">Customer's payment card</span><div class="s">Tap the card on the terminal to find recent sales</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retFind">${I('users')}<span class="grow"><span class="t">Customer profile</span><div class="s">Pick from their purchase history</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retFind">${I('box')}<span class="grow"><span class="t">Online order</span><div class="s">Return an e-commerce order in store</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retNone">${I('alert')}<span class="grow"><span class="t">No receipt</span><div class="s">Store credit only, manager approval</div></span>${I('chev', 'width="18" height="18"')}</button>
+        </div></section>`,
+    };
+  };
+  function returnLinesToCart() {
+    const cur = POS.cur(), sale = D.pastSale;
+    S.cart = POS.newCart(); S.cart.salesperson = S.user.id; S.cart.customer = sale.customer;
+    sale.lines.forEach((l, i) => { if (cur.sel[i]) POS.addLine(l.sku, l.variant, { ret: true, price: i === 1 ? 0 : POS.price(POS.product(l.sku)) }); });
+  }
+  Object.assign(A, {
+    retFind: () => { POS.cur().stage = 'found'; POS.cur().sel = { 0: true }; POS.toast('Sale found'); },
+    retNone: () => { POS.cur().stage = 'noreceipt'; POS.render(); },
+    retSel: (on, el) => { POS.cur().sel[el.dataset.i] = on; POS.render(); },
+    retRefund: () => { returnLinesToCart(); S.stack = [{ v: 'sell' }, { v: 'checkout' }]; POS.render(); },
+    retExchange: () => { returnLinesToCart(); POS.tab('sell'); POS.toast('Return items added. Add the new items for the exchange.'); },
+    retNoReceipt: (sku) => {
+      POS.pendingApproval = () => { S.cart = POS.newCart(); S.cart.salesperson = S.user.id; POS.addLine(sku, undefined, { ret: true, price: POS.round(POS.price(POS.product(sku)) * 0.85) }); S.stack = [{ v: 'sell' }, { v: 'checkout' }]; POS.toast('Approved by Sarah L. Refund as store credit.'); };
+      POS.sheet('approval', { reason: 'Return without a receipt needs manager approval.' });
+    },
+  });
+
+  /* ================= Orders to fulfil ================= */
+  V.orders = (cur) => {
+    const f = cur.f || 'To pick';
+    const list = S.orders.filter((o) => (f === 'Done' ? ['Collected', 'Shipped'].includes(o.status) : f === 'To pick' ? ['To pick', 'Packing'].includes(o.status) : o.status === f));
+    const cnt = (s) => S.orders.filter((o) => (s === 'To pick' ? ['To pick', 'Packing'].includes(o.status) : s === 'Done' ? ['Collected', 'Shipped'].includes(o.status) : o.status === s)).length;
+    return {
+      title: 'Orders to fulfil', sub: 'Click & collect and ship from store · from Fluent Commerce',
+      body: `<div class="chips">${['To pick', 'Ready for pickup', 'Done'].map((s) => `<button class="chip ${f === s ? 'on' : ''}" data-act="ordFilter" data-arg="${s}">${s} · ${cnt(s)}</button>`).join('')}</div>
+        <section class="card"><div class="list">${list.map((o) => `<button class="li" data-act="openOrder" data-arg="${o.id}">${I(o.type === 'Ship from store' ? 'truck' : 'store', 'width="22" height="22"')}<span class="grow"><span class="t">${E(o.customer)}</span><div class="s"><span class="mono">${o.id}</span> · ${o.type} · ${o.lines.reduce((a, l) => a + l[2], 0)} items</div><div class="s" style="color:${o.due.startsWith('Today') ? 'var(--warn)' : 'var(--fg-3)'}">${I('clock', 'width="13" height="13" style="vertical-align:-2px"')} ${o.due}</div></span><span class="badge ${o.status === 'Ready for pickup' ? 'good' : o.status === 'To pick' ? 'warn' : 'info'}">${o.status}</span></button>`).join('') || '<div class="li s">Nothing here right now.</div>'}</div></section>`,
+    };
+  };
+  V.order = (cur) => {
+    const o = S.orders.find((x) => x.id === cur.id);
+    cur.picked = cur.picked || {};
+    const all = o.lines.every((_, i) => cur.picked[i]);
+    let footer;
+    if (o.status === 'To pick') footer = `<div class="g2"><button class="btn big" data-act="shortPick">Can't find an item</button><button class="btn big primary" data-act="ordPacked" ${all ? '' : 'disabled'}>${o.type === 'Ship from store' ? 'Packed · print label' : 'Ready for pickup'}</button></div>`;
+    else if (o.status === 'Ready for pickup') footer = `<label class="row">${POS.switch('id-check', !!cur.idok, 'ID checked', 'ordId')}<span class="grow">Customer showed ID or order QR</span></label><button class="btn big primary" data-act="ordHandover" ${cur.idok ? '' : 'disabled'}>Hand over to customer</button>`;
+    else if (o.status === 'Packing') footer = `<button class="btn big primary" data-act="ordShipped">Handed to carrier</button>`;
+    else footer = `<button class="btn big" data-act="back">Done</button>`;
+    return {
+      title: E(o.customer), sub: `${o.id} · ${o.type}`,
+      body: `<div class="row"><span class="badge ${o.status === 'Ready for pickup' ? 'good' : 'warn'}">${o.status}</span><span class="small muted">${o.due}</span></div>
+        <section class="card"><div class="card-h"><h2>${o.status === 'To pick' ? 'Pick list' : 'Items'}</h2>${o.status === 'To pick' ? `<span class="small muted">Scan each item or tick it</span>` : ''}</div><div class="list">${o.lines.map(([sku, v, q], i) => { const p = POS.product(sku); return `<label class="li" style="cursor:pointer">${o.status === 'To pick' ? `<input type="checkbox" ${cur.picked[i] ? 'checked' : ''} data-change="pickLine" data-i="${i}" style="width:22px;height:22px;accent-color:var(--accent)" aria-label="Picked ${E(p.name)}">` : ''}${POS.art(p, 'sm')}<span class="grow"><span class="t">${q} × ${E(p.name)}</span><div class="s">${E(v)} · <span class="mono">${p.ean}</span></div><div class="s">Location: ${['Display case B', 'Stockroom shelf 4', 'Back drawer 2'][i % 3]}</div></span></label>`; }).join('')}</div></section>
+        ${o.type === 'Ship from store' ? `<div class="callout">${I('truck')}<span>Carrier label comes from Fluent (UPS Ground). Collection at 18:00.</span></div>` : `<div class="callout">${I('sms')}<span>The customer gets an SMS when the order is ready.</span></div>`}`,
+      footer: `<div class="actionbar">${footer}</div>`,
+    };
+  };
+  Object.assign(A, {
+    ordFilter: (f) => { POS.cur().f = f; POS.render(); },
+    openOrder: (id) => POS.go('order', { id }),
+    pickLine: (on, el) => { POS.cur().picked[el.dataset.i] = on; POS.render(); },
+    shortPick: () => POS.toast('Short pick reported to Fluent. The item is re-sourced from another location.'),
+    ordPacked: () => { const o = S.orders.find((x) => x.id === POS.cur().id); o.status = o.type === 'Ship from store' ? 'Packing' : 'Ready for pickup'; o.due = o.type === 'Ship from store' ? 'Carrier at 18:00' : 'Ready since ' + new Date().toTimeString().slice(0, 5); POS.toast(o.type === 'Ship from store' ? 'Label printed. Hand to the carrier at 18:00.' : 'Ready for pickup. Customer notified by SMS.'); },
+    ordId: (on) => { POS.cur().idok = on; POS.render(); },
+    ordHandover: () => { const o = S.orders.find((x) => x.id === POS.cur().id); o.status = 'Collected'; o.due = 'Collected ' + new Date().toTimeString().slice(0, 5); POS.toast('Order collected. Status sent to Fluent.'); POS.back(); },
+    ordShipped: () => { const o = S.orders.find((x) => x.id === POS.cur().id); o.status = 'Shipped'; o.due = 'Shipped'; POS.toast('Handed to carrier'); POS.back(); },
+  });
+
+  /* ================= Parked sales ================= */
+  V.parked = () => ({
+    title: 'Parked sales', sub: 'Resume on any device in this store · kept 24 hours',
+    body: S.parked.length ? `<section class="card"><div class="list">${S.parked.map((p, i) => { const total = p.lines.reduce((a, l) => a + POS.price(POS.product(l.sku)) * l.qty, 0); return `<div class="li"><span class="avatar">${I('pause', 'width="18" height="18"')}</span><span class="grow"><span class="t">${E(p.customer)}</span><div class="s">${p.lines.map((l) => POS.product(l.sku).name).join(', ')}</div><div class="s">Parked ${p.at} by ${p.by} · <span class="mono">${p.id}</span></div></span><div class="stack" style="justify-items:end;gap:6px"><b class="num">${M(total)}</b><button class="btn sm primary" data-act="resume" data-arg="${i}">Resume</button></div></div>`; }).join('')}</div></section>`
+      : `<div class="card"><div class="card-b" style="padding:28px;text-align:center">${I('pause', 'width="32" height="32" style="margin:0 auto;color:var(--fg-3)"')}<b>No parked sales</b><span class="small muted">Park a sale from the Sale screen to serve another customer.</span></div></div>`,
+  });
+  A.resume = (i) => {
+    const p = S.parked.splice(+i, 1)[0];
+    if (S.cart.lines.length) A.park();
+    S.cart = POS.newCart(); S.cart.salesperson = S.user.id;
+    const c = D.customers.find((x) => x.name === p.customer); if (c) S.cart.customer = c.id;
+    p.lines.forEach((l) => { POS.addLine(l.sku, l.variant, { note: l.note }); S.cart.lines[S.cart.lines.length - 1].qty = l.qty; });
+    POS.tab('sell'); POS.toast(`Resumed ${p.id}`);
+  };
+
+  /* ================= Cash & business day ================= */
+  V.cash = () => {
+    const st = POS.store(), d = S.drawer;
+    const expected = st.float + d.cashSales * { USD: 1, EUR: 1, JPY: 1 }[st.currency] + d.paidIn - d.paidOut;
+    return {
+      title: 'Cash & day', sub: `${st.code} · business day 13 Oct · ${st.tz}`, wide: true,
+      body: `<section class="card"><div class="card-h"><h2>Business day</h2><span class="badge ${S.dayOpen ? 'good' : 'info'}">${S.dayOpen ? 'Open' : 'Z-closed'}</span></div><div class="card-b">
+          <dl class="kv"><dt>Opened</dt><dd>09:52 by Sarah L.</dd><dt>Transactions</dt><dd>${38 + S.myDay.txns - 9}</dd><dt>Net sales</dt><dd>${M(12880 * { USD: 1, EUR: 0.92, JPY: 149 }[st.currency] + (S.myDay.sales - 3840))}</dd>${st.fiscal ? `<dt>Fiscal</dt><dd>${st.country === 'DE' ? 'TSE online' : st.fiscal}</dd>` : ''}</dl></div></section>
+        <section class="card"><div class="card-h"><h2>Drawer 1</h2><span class="small muted">${st.device}</span></div><div class="card-b">
+          <dl class="kv"><dt>Opening float</dt><dd>${M(st.float)}</dd><dt>Cash sales</dt><dd>${M(d.cashSales)}</dd><dt>Paid in</dt><dd>${M(d.paidIn)}</dd><dt>Paid out</dt><dd>−${M(d.paidOut)}</dd></dl>
+          <div class="divider"></div><div class="row"><span class="grow"><b>Expected in drawer</b></span><b class="num" style="font-size:20px">${M(expected)}</b></div>
+          <div class="g2"><button class="btn" data-act="cashMove" data-arg="in">${I('plus')}Paid in</button><button class="btn" data-act="cashMove" data-arg="out">${I('out')}Paid out</button>
+          <button class="btn" data-act="cashMove" data-arg="pickup">${I('cash')}Cash pickup</button><button class="btn" data-act="noSale">${I('lock')}Open drawer</button></div></div></section>
+        <section class="card"><div class="list">
+          <button class="li" data-act="sheet" data-arg="xReport">${I('receipt')}<span class="grow"><span class="t">X report</span><div class="s">Mid-day totals. Doesn't close anything.</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="go" data-arg="zclose" ${S.dayOpen ? '' : 'disabled'}>${I('lock')}<span class="grow"><span class="t">Count drawer & close day (Z)</span><div class="s">Blind count, over/short, posts totals to SAP${st.fiscal && st.country === 'DE' ? ', closes the TSE day' : ''}</div></span>${I('chev', 'width="18" height="18"')}</button>
+        </div></section>`,
+    };
+  };
+  SH.cashMove = (sh) => ({
+    title: { in: 'Paid in', out: 'Paid out', pickup: 'Cash pickup' }[sh.kind],
+    body: `<div class="field"><label for="cm-amt">Amount</label><input class="input num" id="cm-amt" inputmode="decimal" value="${sh.kind === 'pickup' ? (POS.store().currency === 'JPY' ? 100000 : 500) : POS.store().currency === 'JPY' ? 2000 : 20}" style="font-size:22px;font-weight:700;min-height:56px"></div>
+      <div class="field"><label for="cm-reason">Reason</label><select class="input" id="cm-reason">${(sh.kind === 'out' ? ['Store supplies', 'Courier', 'Cleaning'] : sh.kind === 'in' ? ['Change float top-up', 'Petty cash return'] : ['Safe drop', 'Bank deposit']).map((r) => `<option>${r}</option>`).join('')}</select></div>
+      ${sh.kind === 'out' ? '<div class="small muted">Paid outs over the limit need a receipt photo and manager approval.</div>' : ''}${sh.kind === 'pickup' ? '<div class="small muted">Bag number is recorded and sent to SAP as a deposit.</div>' : ''}`,
+    footer: `<button class="btn big primary" data-act="cashMoveOk">Record</button>`,
+  });
+  Object.assign(A, {
+    cashMove: (k) => POS.sheet('cashMove', { kind: k }),
+    cashMoveOk: () => { const v = +document.getElementById('cm-amt').value || 0; const k = S.sheet.kind; if (k === 'in') S.drawer.paidIn += v; else S.drawer.paidOut += v; S.sheet = null; POS.toast(`${{ in: 'Paid in', out: 'Paid out', pickup: 'Pickup' }[k]} of ${M(v)} recorded`); },
+    noSale: () => POS.sheet('approval', { reason: 'Opening the drawer without a sale needs a manager.', then: 'toast:Drawer opened · no-sale recorded in audit log' }),
+  });
+  SH.xReport = () => {
+    const st = POS.store(), f = { USD: 1, EUR: 0.92, JPY: 149 }[st.currency];
+    return {
+      title: 'X report · 13 Oct',
+      body: `<div class="card"><div class="card-b" style="padding-top:14px"><dl class="kv">
+        <dt>Gross sales</dt><dd>${M(14210 * f)}</dd><dt>Returns</dt><dd>−${M(1330 * f)}</dd><dt>Net sales</dt><dd>${M(12880 * f)}</dd><dt>${st.taxLabel}</dt><dd>${M(st.taxMode === 'inclusive' ? 12880 * f * st.taxRate / (1 + st.taxRate) : 12880 * f * st.taxRate)}</dd>
+        <dt>Transactions</dt><dd>38</dd><dt>Avg. sale</dt><dd>${M((12880 * f) / 38)}</dd><dt>Discounts</dt><dd>${M(612 * f)}</dd></dl>
+        <div class="divider"></div><dl class="kv"><dt>Card</dt><dd>${M(10920 * f)}</dd><dt>Cash</dt><dd>${M(S.drawer.cashSales)}</dd><dt>Gift card</dt><dd>${M(640 * f)}</dd><dt>Pay by link</dt><dd>${M(908 * f)}</dd></dl></div></div>`,
+      footer: `<button class="btn" data-act="toast" data-arg="X report printed">${I('printer')}Print</button>`,
+    };
+  };
+
+  V.zclose = (cur) => {
+    const st = POS.store();
+    cur.counts = cur.counts || {};
+    const counted = st.denoms.reduce((a, d) => a + d * (+cur.counts[d] || 0), 0);
+    const expected = st.float + S.drawer.cashSales + S.drawer.paidIn - S.drawer.paidOut;
+    const diff = POS.round(counted - expected);
+    return {
+      title: 'Close day', sub: 'Count the drawer by denomination',
+      body: `<div class="callout">${I('eye')}<span>Blind count: the expected amount is shown only after you submit.</span></div>
+        <section class="card"><div class="list">${st.denoms.map((d) => `<div class="li"><b class="num" style="width:90px">${M(d)}</b><span class="grow"></span><input class="input num" style="width:90px;text-align:right" inputmode="numeric" id="den-${String(d).replace('.', '_')}" value="${cur.counts[d] || ''}" placeholder="0" data-input="denCount" data-d="${d}" aria-label="Count of ${M(d)}"><b class="num muted" style="width:96px;text-align:right">${M(d * (+cur.counts[d] || 0))}</b></div>`).join('')}</div></section>
+        <section class="card"><div class="card-b" style="padding-top:14px"><div class="totals"><div class="r grand"><span>Counted</span><span>${M(counted)}</span></div>
+          ${cur.submitted ? `<div class="r"><span>Expected</span><span>${M(expected)}</span></div><div class="r" style="font-weight:700;color:${Math.abs(diff) < 1 ? 'var(--good)' : 'var(--bad)'}"><span>${diff >= 0 ? 'Over' : 'Short'}</span><span>${M(Math.abs(diff))}</span></div>` : ''}</div></div></section>
+        ${cur.submitted && Math.abs(diff) >= 1 ? `<div class="field"><label for="z-note">Explain the difference</label><textarea class="input" id="z-note" placeholder="Required when over/short exceeds ${M(1)}"></textarea></div>` : ''}`,
+      footer: `<div class="actionbar">${cur.submitted ? `<button class="btn big primary block" data-act="zFinish">Close day & post to SAP</button>` : `<div class="g2"><button class="btn big" data-act="zFill">Fill example count</button><button class="btn big primary" data-act="zSubmit" ${counted ? '' : 'disabled'}>Submit count</button></div>`}</div>`,
+    };
+  };
+  Object.assign(A, {
+    denCount: (v, el) => { POS.cur().counts[el.dataset.d] = v.replace(/\D/g, ''); clearTimeout(A._dt); A._dt = setTimeout(POS.render, 350); },
+    zFill: () => {
+      const st = POS.store(); let left = POS.round(st.float + S.drawer.cashSales + S.drawer.paidIn - S.drawer.paidOut); const counts = {};
+      st.denoms.forEach((d) => { const n = Math.floor(POS.round(left) / d + 1e-9); if (n) { counts[d] = String(n); left = POS.round(left - n * d); } });
+      POS.cur().counts = counts; POS.render();
+    },
+    zSubmit: () => { POS.cur().submitted = true; POS.render(); },
+    zFinish: () => { S.dayOpen = false; const st = POS.store(); S.stack = [{ v: 'more' }, { v: 'cash' }]; POS.toast(`Day closed. Z report printed${st.country === 'DE' ? ', TSE day closed' : ''}, totals ${S.offline ? 'queued for' : 'posted to'} SAP.`); },
+  });
+
+  /* ================= More ================= */
+  V.more = () => {
+    const st = POS.store(), u = S.user;
+    return {
+      title: 'More', sub: `${st.code} · ${st.device}`, wide: true,
+      body: `<div class="two-col" style="display:grid;gap:14px"><div class="stack">
+        <section class="card"><div class="card-b" style="padding-top:14px"><div class="row"><span class="avatar lg">${u.initials}</span><div class="grow"><b style="font-size:18px">${u.name}</b><div class="small muted">${u.role} · #${u.id}</div><div class="small muted">Discounts up to ${u.discountLimit}% without approval</div></div></div>
+          <button class="btn" data-act="lock">${I('lock')}Lock & switch user</button></div></section>
+        <section class="card"><div class="list">
+          <button class="li" data-act="go" data-arg="cash">${I('cash')}<span class="grow t">Cash & business day</span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="go" data-arg="orders">${I('box')}<span class="grow t">Orders to fulfil</span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="go" data-arg="parked">${I('pause')}<span class="grow t">Parked sales</span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="go" data-arg="returns">${I('ret')}<span class="grow t">Return or exchange</span>${I('chev', 'width="18" height="18"')}</button>
+        </div></section>
+        <section class="card"><div class="card-b" style="padding-top:14px">
+          <label class="row">${POS.switch('more-train', S.training, 'Training mode', 'demoTraining')}<span class="grow"><b>Training mode</b><div class="small muted">Practise sales and returns. Nothing is charged, signed or posted.</div></span></label>
+        </div></section></div>
+        <div class="stack">
+        <section class="card"><div class="card-h"><h2>Hardware</h2></div><div class="list">
+          ${[['card', 'Payment terminal', st.terminal, 'Connected'], ['printer', 'Receipt printer', st.printer, 'Paper OK'], ['scan', 'Barcode scanner', 'Camera + Bluetooth ring scanner', 'Ready'], ['battery', 'Battery', '64% · charging sled attached', 'OK']].map(([ic, a, b, s]) => `<div class="li">${I(ic, 'width="20" height="20"')}<span class="grow"><span class="t">${a}</span><div class="s">${b}</div></span><span class="badge good">${s}</span></div>`).join('')}
+        </div></section>
+        <section class="card"><div class="card-h"><h2>Sync</h2><span class="badge ${S.offline ? 'warn' : 'good'}">${S.offline ? 'Offline' : 'Online'}</span></div><div class="card-b"><dl class="kv">
+          <dt>Queued transactions</dt><dd>${S.queued}</dd><dt>Last sync</dt><dd>${S.offline ? '09:40' : 'Just now'}</dd><dt>Offline catalogue</dt><dd>v8812 · 48,210 items</dd><dt>Receipt numbers left</dt><dd>882 reserved</dd><dt>Offline sign-in</dt><dd>PINs cached · 72 h</dd><dt>App version</dt><dd>4.12.1 (minimum 4.11.0)</dd></dl>
+          <button class="btn" data-act="toast" data-arg="${S.offline ? 'No connection. Will retry automatically.' : 'Synced. Catalogue, prices and promotions up to date.'}">${I('sync')}Sync now</button></div></section>
+        <section class="card"><div class="list">
+          <div class="li">${I('signal', 'width="20" height="20"')}<span class="grow"><span class="t">Language</span><div class="s">${st.locale} · receipts follow the customer’s language</div></span></div>
+          <button class="li" data-act="toast" data-arg="Opening the training library">${I('graduation', 'width="20" height="20"')}<span class="grow t">How-to videos & help</span>${I('chev', 'width="18" height="18"')}</button>
+        </div></section></div></div>`,
+    };
+  };
+})();
+</script>

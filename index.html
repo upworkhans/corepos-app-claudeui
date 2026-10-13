@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Core POS App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <div class="stage-device">
+    <div class="frame" id="frame">
+      <div class="screen">
+        <div class="status-bar"><span id="clock">10:14</span><span>5G · 82%</span></div>
+        <div class="app" id="app"></div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="panel-side" id="side" aria-label="Demo controls">
+    <div class="side-card">
+      <div class="side-title"><div class="logo">C·P</div><div><b>CORE POS · Store app</b><span>Clickable prototype · sample data</span></div></div>
+      <p class="side-note">The associate app for iPhone, iPad and Android. Same tenant, rules and integrations as the Core POS admin panel.</p>
+    </div>
+    <div class="side-card">
+      <h2>Demo store</h2>
+      <div class="seg" id="side-store"></div>
+      <div class="side-note" id="side-rules"></div>
+    </div>
+    <div class="side-card">
+      <h2>Device</h2>
+      <div class="seg" id="side-dev"></div>
+      <label class="row" style="justify-content:space-between"><span>Offline</span><label class="switch"><input type="checkbox" id="side-off" data-change="demoOffline" aria-label="Simulate offline"><span></span></label></label>
+      <label class="row" style="justify-content:space-between"><span>Training mode</span><label class="switch"><input type="checkbox" id="side-train" data-change="demoTraining" aria-label="Training mode"><span></span></label></label>
+    </div>
+    <div class="side-card">
+      <h2>Jump to</h2>
+      <div class="jump" id="side-jump"></div>
+      <p class="side-note">Sign in with any 4-digit PIN. Mia (Senior Associate) can give up to 10% off; more triggers a manager approval.</p>
+    </div>
+  </aside>
+</div>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/views-sell.js"></script>
+<script src="assets/views-ops.js"></script>
+</body>
+</html>
