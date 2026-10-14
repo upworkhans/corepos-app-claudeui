@@ -36,7 +36,7 @@
       right: `<button class="ibtn" data-act="lock" aria-label="Lock and switch user">${I('lock')}</button>`,
       wide: true,
       body: `
-        <button class="hero-sale" data-act="tab" data-arg="sell">${I('bag')}<span class="grow"><b>${count ? 'Continue sale' : 'New sale'}</b><span class="small">${count ? `${count} item${count > 1 ? 's' : ''} · ${M(t.total)}` : 'Scan an item or search the catalogue'}</span></span>${I('chev')}</button>
+        <button class="hero-sale" data-act="tab" data-arg="sell"><span class="ic">${I('bag')}</span><span class="grow"><b>${count ? 'Continue sale' : 'New sale'}</b><span class="small">${count ? `${count} item${count > 1 ? 's' : ''} · ${M(t.total)}` : 'Scan an item or search the catalogue'}</span></span>${I('chev')}</button>
         <div class="tiles">
           ${tile('go', 'returns', 'ret', 'Return or exchange')}${tile('tab', 'products', 'search', 'Find product')}${tile('tab', 'customers', 'users', 'Customers')}
           ${tile('go', 'orders', 'box', 'Orders to fulfil', toPick)}${tile('go', 'parked', 'pause', 'Parked sales', S.parked.length)}${tile('go', 'cash', 'cash', 'Cash & day')}
@@ -173,11 +173,11 @@
   SH.saleMenu = () => ({
     title: 'Sale options',
     body: `<div class="card"><div class="list">
-      <button class="li" data-act="basketDisc">${I('percent')}<span class="grow"><span class="t">Discount whole sale</span><div class="s">Your limit: ${S.user.discountLimit}% without approval</div></span></button>
-      <button class="li" data-act="pickSalesperson">${I('users')}<span class="grow"><span class="t">Salesperson / split commission</span><div class="s">Currently ${(D.users.find((u) => u.id === S.cart.salesperson) || S.user).short}</div></span></button>
-      <button class="li" data-act="addGiftCard">${I('gift')}<span class="grow"><span class="t">Sell a gift card</span><div class="s">Activated through the payment terminal</div></span></button>
-      <button class="li" data-act="taxExempt">${I('credit')}<span class="grow"><span class="t">Tax exemption</span><div class="s">Certificate number, photo and manager approval</div></span></button>
-      <button class="li" data-act="voidSale">${I('x', 'style="color:var(--bad)"')}<span class="grow"><span class="t" style="color:var(--bad)">Void sale</span><div class="s">Clears all items. Recorded in the audit log.</div></span></button>
+      <button class="li" data-act="basketDisc"><span class="ic">${I('percent')}</span><span class="grow"><span class="t">Discount whole sale</span><div class="s">Your limit: ${S.user.discountLimit}% without approval</div></span></button>
+      <button class="li" data-act="pickSalesperson"><span class="ic">${I('users')}</span><span class="grow"><span class="t">Salesperson / split commission</span><div class="s">Currently ${(D.users.find((u) => u.id === S.cart.salesperson) || S.user).short}</div></span></button>
+      <button class="li" data-act="addGiftCard"><span class="ic">${I('gift')}</span><span class="grow"><span class="t">Sell a gift card</span><div class="s">Activated through the payment terminal</div></span></button>
+      <button class="li" data-act="taxExempt"><span class="ic">${I('credit')}</span><span class="grow"><span class="t">Tax exemption</span><div class="s">Certificate number, photo and manager approval</div></span></button>
+      <button class="li" data-act="voidSale"><span class="ic">${I('x')}</span><span class="grow"><span class="t" style="color:var(--bad)">Void sale</span><div class="s">Clears all items. Recorded in the audit log.</div></span></button>
     </div></div>`,
   });
   Object.assign(A, {

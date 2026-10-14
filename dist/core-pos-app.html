@@ -1,88 +1,90 @@
 <title>Core POS App</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
 <style>
 /* Core POS app
    Layout: a stage that shows the app inside a phone or tablet frame next to demo controls;
    on a real phone the frame drops away and the app fills the screen.
    Inside the app: header, scrolling content, and a bottom tab bar or action bar. Touch targets ≥ 44px. */
+/* Square-style minimal: white surfaces, hairline dividers, black text, one blue for primary actions. */
 :root {
-  --bg: #e9eeec;            /* stage */
-  --app: #f6f8f7;           /* app ground */
+  --bg: #f2f2f2;            /* stage behind the device */
+  --app: #ffffff;           /* app ground */
   --surface: #ffffff;
-  --surface-2: #f0f4f2;
-  --line: #dde3e0;
-  --line-strong: #c4cdc9;
-  --fg: #14211d;
-  --fg-2: #4a5853;
-  --fg-3: #75837e;
-  --accent: #0d6b57;
+  --surface-2: #f5f5f5;
+  --line: #e8e8e8;
+  --line-strong: #d4d4d4;
+  --fg: #1a1a1a;
+  --fg-2: #555555;
+  --fg-3: #8c8c8c;
+  --accent: #006aff;        /* primary action blue */
   --accent-ink: #ffffff;
-  --accent-soft: #e2f1ec;
-  --amber: #b45f06;
-  --amber-soft: #fbefe1;
-  --good: #13804a; --good-soft: #e3f4ea;
-  --warn: #a86300; --warn-soft: #fdf1dc;
-  --bad: #c03a2b;  --bad-soft: #fbe7e4;
-  --info: #2a62b8; --info-soft: #e5eefb;
-  --ink: #0f1c19;           /* frame & dark chrome */
-  --shadow: 0 1px 2px rgba(15, 28, 25, .06), 0 10px 30px rgba(15, 28, 25, .10);
-  --font: "Schibsted Grotesk", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --accent-soft: #eaf2ff;
+  --amber: #8c5a00;
+  --amber-soft: #fff4e0;
+  --good: #00873c; --good-soft: #e6f6ec;
+  --warn: #9a6400; --warn-soft: #fff4e0;
+  --bad: #d92d20;  --bad-soft: #fdecea;
+  --info: #006aff; --info-soft: #eaf2ff;
+  --ink: #111111;           /* device frame */
+  --shadow: 0 1px 2px rgba(0, 0, 0, .05), 0 8px 24px rgba(0, 0, 0, .08);
+  --font: "Poppins", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "Poppins", "Segoe UI", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #070d0b; --app: #0d1513; --surface: #142019; --surface-2: #1a2822; --line: #24342e; --line-strong: #33463f;
-    --fg: #e6eeea; --fg-2: #a9b8b2; --fg-3: #7b8c86; --accent: #3fbf9a; --accent-ink: #06231b; --accent-soft: #173a30;
-    --amber: #f0a548; --amber-soft: #3a2a14; --good: #4cc887; --good-soft: #143426; --warn: #f0b04a; --warn-soft: #3a2c12;
-    --bad: #f07a6c; --bad-soft: #3d1c18; --info: #79a8f0; --info-soft: #182a45; --ink: #000000;
-    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.4);
+    --bg: #000000; --app: #121212; --surface: #121212; --surface-2: #1e1e1e; --line: #2a2a2a; --line-strong: #3a3a3a;
+    --fg: #f2f2f2; --fg-2: #bdbdbd; --fg-3: #8a8a8a; --accent: #3d8bff; --accent-ink: #ffffff; --accent-soft: #10264a;
+    --amber: #ffb547; --amber-soft: #3a2a10; --good: #3ccf7a; --good-soft: #12301f; --warn: #ffb547; --warn-soft: #3a2a10;
+    --bad: #ff6b5e; --bad-soft: #3d1714; --info: #3d8bff; --info-soft: #10264a; --ink: #000000;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.5);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #070d0b; --app: #0d1513; --surface: #142019; --surface-2: #1a2822; --line: #24342e; --line-strong: #33463f;
-  --fg: #e6eeea; --fg-2: #a9b8b2; --fg-3: #7b8c86; --accent: #3fbf9a; --accent-ink: #06231b; --accent-soft: #173a30;
-  --amber: #f0a548; --amber-soft: #3a2a14; --good: #4cc887; --good-soft: #143426; --warn: #f0b04a; --warn-soft: #3a2c12;
-  --bad: #f07a6c; --bad-soft: #3d1c18; --info: #79a8f0; --info-soft: #182a45; --ink: #000000;
-  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.4);
+  --bg: #000000; --app: #121212; --surface: #121212; --surface-2: #1e1e1e; --line: #2a2a2a; --line-strong: #3a3a3a;
+  --fg: #f2f2f2; --fg-2: #bdbdbd; --fg-3: #8a8a8a; --accent: #3d8bff; --accent-ink: #ffffff; --accent-soft: #10264a;
+  --amber: #ffb547; --amber-soft: #3a2a10; --good: #3ccf7a; --good-soft: #12301f; --warn: #ffb547; --warn-soft: #3a2a10;
+  --bad: #ff6b5e; --bad-soft: #3d1714; --info: #3d8bff; --info-soft: #10264a; --ink: #000000;
+  --shadow: 0 1px 2px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.5);
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
+:where(#app, .panel-side) svg:not([width]) { width: 20px; height: 20px; flex: none; }
 html, body { height: 100%; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.45 var(--font); -webkit-font-smoothing: antialiased; }
-h1, h2, h3 { margin: 0; font-weight: 650; letter-spacing: -.01em; text-wrap: balance; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 14.5px/1.5 var(--font); -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -.015em; text-wrap: balance; }
 p { margin: 0; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
-.mono { font-family: var(--mono); font-size: .88em; }
+.mono { font-family: var(--mono); font-size: .92em; letter-spacing: .01em; }
 .num { font-variant-numeric: tabular-nums; }
 .muted { color: var(--fg-3); }
 .small { font-size: 13px; }
-.eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .09em; color: var(--fg-3); font-weight: 650; }
+.eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .09em; color: var(--fg-3); font-weight: 600; }
 .up { color: var(--good); } .down { color: var(--bad); }
 
 /* ---------- Stage (desktop viewer) ---------- */
 .stage { min-height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 28px; padding: 28px 28px; align-items: start; max-width: 1560px; margin: 0 auto; }
 .stage-device { display: grid; place-items: start center; min-width: 0; }
-.frame { background: var(--ink); border-radius: 46px; padding: 12px; box-shadow: var(--shadow); width: 414px; height: 868px; position: relative; max-width: 100%; }
+.frame { background: var(--ink); border-radius: 46px; padding: 12px; box-shadow: var(--shadow); width: 414px; height: 868px; position: relative; max-width: 100%; min-width: 0; }
 .frame::before { content: ""; position: absolute; top: 20px; left: 50%; width: 96px; height: 26px; margin-left: -48px; border-radius: 20px; background: #000; z-index: 5; }
 .frame.tablet { width: min(1100px, 100%); height: 780px; border-radius: 30px; padding: 16px; }
 .frame.tablet::before { display: none; }
 .screen { width: 100%; height: 100%; border-radius: 36px; overflow: hidden; background: var(--app); position: relative; container-type: inline-size; container-name: screen; display: flex; flex-direction: column; }
 .frame.tablet .screen { border-radius: 16px; }
-.status-bar { height: 44px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 6px 28px 0; font-size: 13px; font-weight: 650; }
+.status-bar { height: 44px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 6px 28px 0; font-size: 13px; font-weight: 600; }
 .frame.tablet .status-bar { height: 28px; padding: 0 18px; }
 
 .panel-side { display: grid; gap: 16px; position: sticky; top: 28px; }
-.side-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 12px; }
+.side-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
 .side-card h2 { font-size: 15px; }
 .side-title { display: flex; gap: 10px; align-items: center; }
-.side-title .logo { width: 34px; height: 34px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font: 600 13px var(--mono); }
+.side-title .logo { width: 34px; height: 34px; border-radius: 8px; background: var(--fg); color: var(--app); display: grid; place-items: center; font: 600 13px var(--mono); }
 .side-title b { display: block; font-size: 15px; }
 .side-title span { font-size: 12px; color: var(--fg-3); }
 .seg { display: flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 2px; }
@@ -98,34 +100,35 @@ button { cursor: pointer; }
 .banner { flex: none; padding: 6px 16px; font-size: 12.5px; font-weight: 600; display: flex; gap: 8px; align-items: center; }
 .banner.offline { background: var(--amber-soft); color: var(--amber); }
 .banner.training { background: repeating-linear-gradient(135deg, var(--info-soft) 0 12px, transparent 12px 24px), var(--surface); color: var(--info); }
-.hdr { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 16px 12px; background: var(--app); }
-.hdr h1 { font-size: 22px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hdr { flex: none; display: flex; align-items: center; gap: 10px; padding: 12px 16px 14px; background: var(--app); border-bottom: 1px solid var(--line); }
+.hdr h1 { font-size: 24px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hdr .sub { font-size: 12.5px; color: var(--fg-3); }
-.ibtn { width: 42px; height: 42px; flex: none; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; position: relative; }
+.ibtn { width: 42px; height: 42px; flex: none; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; position: relative; }
 .ibtn svg { width: 20px; height: 20px; }
-.ibtn .pip { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 10px; background: var(--bad); color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; }
-.content { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 16px 20px; display: grid; gap: 14px; align-content: start; }
+.ibtn .pip { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 10px; background: var(--bad); color: #fff; font-size: 11px; font-weight: 600; display: grid; place-items: center; }
+.content { flex: 1; min-height: 0; overflow-y: auto; padding: 16px 16px 24px; display: grid; gap: 14px; align-content: start; }
 .tabbar { flex: none; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--surface); border-top: 1px solid var(--line); padding: 6px 6px 18px; }
 .frame.tablet .tabbar { padding-bottom: 8px; }
 .tabbar button { border: 0; background: none; display: grid; justify-items: center; gap: 2px; font-size: 11.5px; font-weight: 600; color: var(--fg-3); padding: 6px 0; border-radius: 10px; position: relative; }
 .tabbar button svg { width: 22px; height: 22px; }
-.tabbar button.on { color: var(--accent); }
+.tabbar button.on { color: var(--fg); }
+.tabbar button { font-weight: 500; }
 .tabbar .pip { position: absolute; top: 2px; left: 55%; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); font-size: 10.5px; display: grid; place-items: center; }
 .actionbar { flex: none; background: var(--surface); border-top: 1px solid var(--line); padding: 12px 16px 22px; display: grid; gap: 10px; }
 .frame.tablet .actionbar { padding-bottom: 12px; }
 
 /* ---------- Primitives ---------- */
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; min-width: 0; }
 .card-h { display: flex; align-items: center; gap: 8px; padding: 14px 14px 10px; }
 .card-h h2 { font-size: 16px; flex: 1; }
 .card-b { padding: 0 14px 14px; display: grid; gap: 10px; }
-.btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); padding: 0 16px; font-weight: 650; font-size: 15px; white-space: nowrap; }
+.btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--surface); padding: 0 16px; font-weight: 500; font-size: 14.5px; white-space: nowrap; }
 .btn svg { width: 18px; height: 18px; }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
 .btn.dark { background: var(--fg); border-color: var(--fg); color: var(--app); }
 .btn.danger { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 40%, transparent); }
 .btn.ghost { border-color: transparent; background: transparent; }
-.btn.big { min-height: 56px; font-size: 17px; border-radius: 14px; }
+.btn.big { min-height: 56px; font-size: 16px; border-radius: 8px; }
 .btn.sm { min-height: 34px; padding: 0 12px; font-size: 13px; border-radius: 9px; }
 .btn.block { width: 100%; }
 .btn.icon { width: 34px; padding: 0; }
@@ -136,7 +139,7 @@ button { cursor: pointer; }
 .stack { display: grid; gap: 10px; }
 .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 650; background: var(--surface-2); color: var(--fg-2); white-space: nowrap; }
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--surface-2); color: var(--fg-2); white-space: nowrap; }
 .badge.good { background: var(--good-soft); color: var(--good); }
 .badge.warn { background: var(--warn-soft); color: var(--warn); }
 .badge.bad { background: var(--bad-soft); color: var(--bad); }
@@ -144,11 +147,12 @@ button { cursor: pointer; }
 .badge.accent { background: var(--accent-soft); color: var(--accent); }
 .tag { font-family: var(--mono); font-size: 11.5px; padding: 1px 6px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--fg-2); }
 .chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
-.chip { flex: none; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 999px; padding: 7px 14px; font-size: 13.5px; font-weight: 600; min-height: 36px; }
+.chip { flex: none; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 999px; padding: 7px 14px; font-size: 13.5px; font-weight: 500; min-height: 36px; }
 .chip.on { background: var(--fg); color: var(--app); border-color: var(--fg); }
+.lock { font-family: var(--font); }
 .field { display: grid; gap: 5px; }
-.field > label { font-size: 13px; font-weight: 650; color: var(--fg-2); }
-.input { min-height: 46px; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 12px; padding: 0 14px; width: 100%; min-width: 0; }
+.field > label { font-size: 13px; font-weight: 600; color: var(--fg-2); }
+.input { min-height: 46px; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 8px; padding: 0 14px; width: 100%; min-width: 0; }
 textarea.input { padding: 10px 14px; min-height: 70px; }
 .input:focus { outline: 2px solid color-mix(in srgb, var(--accent) 40%, transparent); border-color: var(--accent); }
 .search { position: relative; }
@@ -167,13 +171,15 @@ textarea.input { padding: 10px 14px; min-height: 70px; }
 .li { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-top: 1px solid var(--line); min-height: 56px; background: none; border-left: 0; border-right: 0; border-bottom: 0; width: 100%; text-align: left; }
 .li:first-child { border-top: 0; }
 button.li:hover { background: var(--surface-2); }
-.li .t { font-weight: 650; }
+.li .t { font-weight: 500; }
+.li .ic { width: 36px; height: 36px; border-radius: 8px; background: var(--surface-2); display: grid; place-items: center; flex: none; color: var(--fg); }
+.li .ic svg { width: 19px; height: 19px; }
 .li .s { font-size: 13px; color: var(--fg-3); }
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 14px; }
 .kv dt { color: var(--fg-3); }
 .kv dd { margin: 0; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
 .divider { border-top: 1px dashed var(--line-strong); }
-.callout { display: flex; gap: 10px; padding: 12px 14px; border-radius: 12px; font-size: 13.5px; background: var(--info-soft); }
+.callout { display: flex; gap: 10px; padding: 12px 14px; border-radius: 8px; font-size: 13.5px; background: var(--info-soft); }
 .callout.warn { background: var(--warn-soft); }
 .callout.good { background: var(--good-soft); }
 .callout svg { width: 18px; height: 18px; flex: none; margin-top: 1px; }
@@ -181,49 +187,47 @@ button.li:hover { background: var(--surface-2); }
 .meter i { display: block; height: 100%; background: var(--accent); border-radius: 8px; }
 
 /* Art tiles for products (drawn, no photos) */
-.art { aspect-ratio: 1; border-radius: 12px; display: grid; place-items: center; background: hsl(var(--h) 35% 92%); max-width: 100%; }
+.art { aspect-ratio: 1; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); color: var(--fg-2); max-width: 100%; }
 .art svg { width: 62%; height: 62%; }
-:root[data-theme="dark"] .art { background: hsl(var(--h) 18% 20%); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .art { background: hsl(var(--h) 18% 20%); } }
 .art.sm { width: 52px; height: 52px; border-radius: 10px; flex: none; }
 
 /* Home */
-.hero-sale { display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 18px; background: var(--accent); color: var(--accent-ink); border: 0; text-align: left; width: 100%; }
+.hero-sale { display: flex; align-items: center; gap: 14px; padding: 18px 20px; border-radius: 10px; background: var(--accent); color: var(--accent-ink); border: 0; text-align: left; width: 100%; }
 .hero-sale svg { width: 30px; height: 30px; }
-.hero-sale b { font-size: 20px; display: block; }
+.hero-sale b { font-size: 18px; font-weight: 600; display: block; }
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 10px; display: grid; justify-items: start; gap: 8px; font-size: 13.5px; font-weight: 650; text-align: left; position: relative; min-height: 86px; }
-.tile svg { width: 22px; height: 22px; color: var(--accent); }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; font-weight: 500; padding: 12px 10px; display: grid; justify-items: start; gap: 8px; font-size: 13.5px; font-weight: 600; text-align: left; position: relative; min-height: 86px; }
+.tile svg { width: 22px; height: 22px; color: var(--fg); }
 .tile .pip { position: absolute; top: 10px; right: 10px; background: var(--bad); color: #fff; border-radius: 10px; font-size: 11px; min-width: 20px; height: 20px; display: grid; place-items: center; padding: 0 6px; }
 
 /* Product grid */
 .pgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.pcard { width: 100%; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 8px 8px 10px; display: grid; gap: 6px; text-align: left; min-width: 0; }
-.pcard .n { font-weight: 650; font-size: 13.5px; line-height: 1.25; }
-.pcard .p { font-weight: 700; font-variant-numeric: tabular-nums; }
+.pcard { width: 100%; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 8px 10px; display: grid; gap: 6px; text-align: left; min-width: 0; }
+.pcard .n { font-weight: 500; font-size: 13.5px; line-height: 1.25; }
+.pcard .p { font-weight: 600; font-variant-numeric: tabular-nums; }
 .pcard .st { font-size: 12px; }
 
 /* Cart */
 .cart-line { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--line); align-items: start; }
 .cart-line:first-child { border-top: 0; }
-.cart-line .t { font-weight: 650; font-size: 14.5px; }
+.cart-line .t { font-weight: 500; font-size: 14.5px; }
 .cart-line .s { font-size: 12.5px; color: var(--fg-3); }
-.cart-line .price { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cart-line .price { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
 .cart-line .was { text-decoration: line-through; color: var(--fg-3); font-weight: 500; font-size: 12.5px; }
 .cart-line.ret { background: color-mix(in srgb, var(--warn-soft) 60%, transparent); }
 .stepper { display: inline-flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 10px; overflow: hidden; }
 .stepper button { width: 34px; height: 32px; border: 0; background: var(--surface); font-size: 18px; font-weight: 600; }
-.stepper span { min-width: 28px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stepper span { min-width: 28px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
 .promo { font-size: 12.5px; color: var(--good); font-weight: 600; }
 .line-acts { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .totals { display: grid; gap: 6px; font-size: 14.5px; }
 .totals .r { display: flex; justify-content: space-between; gap: 10px; font-variant-numeric: tabular-nums; }
-.totals .grand { font-variant-numeric: normal; font-size: 22px; font-weight: 750; padding-top: 6px; border-top: 1px solid var(--line); }
-.cust-chip { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px dashed var(--line-strong); background: var(--surface); width: 100%; text-align: left; }
+.totals .grand { font-variant-numeric: normal; font-size: 22px; font-weight: 600; padding-top: 6px; border-top: 1px solid var(--line); }
+.cust-chip { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; border: 1px dashed var(--line-strong); background: var(--surface); width: 100%; text-align: left; }
 .cust-chip.set { border-style: solid; }
-.avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 14px; flex: none; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--fg); font-weight: 600; font-size: 14px; flex: none; }
 .avatar.lg { width: 64px; height: 64px; font-size: 20px; }
-.tier { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 6px; background: var(--amber-soft); color: var(--amber); }
+.tier { font-size: 11px; font-weight: 500; padding: 1px 7px; border-radius: 4px; background: var(--surface-2); color: var(--fg-2); border: 1px solid var(--line); }
 
 /* Two-pane sell layout when the screen is wide (tablet) */
 .sellwrap { display: grid; gap: 14px; }
@@ -241,14 +245,14 @@ button.li:hover { background: var(--surface-2); }
 /* Payment */
 .due { text-align: center; padding: 16px 0 6px; }
 .due .lbl { font-size: 13px; color: var(--fg-3); font-weight: 600; }
-.due .amt { font-size: 40px; font-weight: 750; letter-spacing: -.02em; }
+.due .amt { font-size: 40px; font-weight: 600; letter-spacing: -.02em; }
 .tender-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.tender { min-height: 72px; border-radius: 14px; border: 1px solid var(--line-strong); background: var(--surface); display: grid; justify-items: start; align-content: center; gap: 4px; padding: 10px 14px; text-align: left; font-weight: 650; }
-.tender svg { width: 22px; height: 22px; color: var(--accent); }
+.tender { min-height: 72px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface); display: grid; justify-items: start; align-content: center; gap: 4px; padding: 10px 14px; text-align: left; font-weight: 500; }
+.tender svg { width: 22px; height: 22px; color: var(--fg); }
 .tender .s { font-size: 12px; color: var(--fg-3); font-weight: 500; }
 .paid-line { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-top: 1px solid var(--line); font-size: 14px; }
 .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.keypad button { height: 58px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.keypad button { height: 58px; border-radius: 10px; border: 1px solid var(--line); font-weight: 400; background: var(--surface); font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .keypad button:active { background: var(--surface-2); }
 .pin-dots { display: flex; gap: 14px; justify-content: center; padding: 10px 0; }
 .pin-dots i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--fg-3); }
@@ -262,11 +266,11 @@ button.li:hover { background: var(--surface-2); }
 .done-mark svg { width: 44px; height: 44px; }
 
 /* Receipt paper */
-.receipt { background: #fffef9; color: #1d1d1b; font-family: var(--mono); font-size: 11px; line-height: 1.45; width: 100%; max-width: 280px; margin: 0 auto; padding: 14px 14px 18px; border-radius: 3px; box-shadow: var(--shadow); }
+.receipt { background: #ffffff; color: #1a1a1a; font-family: var(--mono); font-size: 10.5px; border: 1px solid #e8e8e8; line-height: 1.45; width: 100%; max-width: 280px; margin: 0 auto; padding: 14px 14px 18px; border-radius: 3px; box-shadow: var(--shadow); }
 .receipt .c { text-align: center; }
 .receipt .ln { display: flex; justify-content: space-between; gap: 8px; }
 .receipt .rule { border-top: 1px dashed #9a9a92; margin: 6px 0; }
-.receipt .b { font-weight: 700; }
+.receipt .b { font-weight: 600; }
 .receipt .qr { width: 64px; height: 64px; margin: 8px auto 2px; background: conic-gradient(#1d1d1b 25%, transparent 0 50%, #1d1d1b 0 75%, transparent 0) 0 0/11px 11px; border: 5px solid #1d1d1b; }
 
 /* Lock screen */
@@ -281,7 +285,7 @@ button.li:hover { background: var(--surface-2); }
 
 /* Sheets (bottom on phone, centred on tablet) */
 .scrim { position: absolute; inset: 0; background: rgba(8, 16, 14, .45); z-index: 20; }
-.sheet { position: absolute; left: 0; right: 0; bottom: 0; max-height: 88%; background: var(--app); border-radius: 22px 22px 0 0; z-index: 21; display: flex; flex-direction: column; box-shadow: var(--shadow); animation: up .18s ease-out; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; max-height: 88%; background: var(--app); border-radius: 16px 16px 0 0; z-index: 21; display: flex; flex-direction: column; box-shadow: var(--shadow); animation: up .18s ease-out; }
 @keyframes up { from { transform: translateY(30px); opacity: .6; } to { transform: none; opacity: 1; } }
 .sheet .grab { width: 40px; height: 5px; border-radius: 4px; background: var(--line-strong); margin: 8px auto 2px; flex: none; }
 .sheet-h { display: flex; align-items: center; gap: 10px; padding: 8px 16px 10px; flex: none; }
@@ -489,7 +493,7 @@ window.POS = window.POS || {};
     signal: '<path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 4v16"/>',
     battery: '<rect x="2" y="7" width="18" height="10" rx="2"/><path d="M22 11v2M5 10h9v4H5z"/>',
   };
-  POS.icon = (n, attrs = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${attrs}>${P[n] || ''}</svg>`;
+  POS.icon = (n, attrs = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${attrs}>${P[n] || ''}</svg>`;
 
   /* Drawn product art, tinted by hue. */
   const ART = {
@@ -501,7 +505,7 @@ window.POS = window.POS || {};
     pen: '<path d="M70 14l16 16-46 46H24V60z" stroke-width="5"/><path d="M60 24l16 16M20 88h60"/>',
     card: '<rect x="12" y="24" width="76" height="52" rx="8" stroke-width="5"/><path d="M12 40h76M24 62h20"/><path d="M64 56l6 6 10-12"/>',
   };
-  POS.art = (p, cls = '') => `<div class="art ${cls}" style="--h:${p.hue}"><svg viewBox="0 0 100 100" fill="none" stroke="hsl(${p.hue} 45% 38%)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ART[p.art]}</svg></div>`;
+  POS.art = (p, cls = '') => `<div class="art ${cls}" style="--h:${p.hue}"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ART[p.art]}</svg></div>`;
 
   /* ---------- Formatting ---------- */
   POS.esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -709,7 +713,7 @@ window.POS = window.POS || {};
       right: `<button class="ibtn" data-act="lock" aria-label="Lock and switch user">${I('lock')}</button>`,
       wide: true,
       body: `
-        <button class="hero-sale" data-act="tab" data-arg="sell">${I('bag')}<span class="grow"><b>${count ? 'Continue sale' : 'New sale'}</b><span class="small">${count ? `${count} item${count > 1 ? 's' : ''} · ${M(t.total)}` : 'Scan an item or search the catalogue'}</span></span>${I('chev')}</button>
+        <button class="hero-sale" data-act="tab" data-arg="sell"><span class="ic">${I('bag')}</span><span class="grow"><b>${count ? 'Continue sale' : 'New sale'}</b><span class="small">${count ? `${count} item${count > 1 ? 's' : ''} · ${M(t.total)}` : 'Scan an item or search the catalogue'}</span></span>${I('chev')}</button>
         <div class="tiles">
           ${tile('go', 'returns', 'ret', 'Return or exchange')}${tile('tab', 'products', 'search', 'Find product')}${tile('tab', 'customers', 'users', 'Customers')}
           ${tile('go', 'orders', 'box', 'Orders to fulfil', toPick)}${tile('go', 'parked', 'pause', 'Parked sales', S.parked.length)}${tile('go', 'cash', 'cash', 'Cash & day')}
@@ -846,11 +850,11 @@ window.POS = window.POS || {};
   SH.saleMenu = () => ({
     title: 'Sale options',
     body: `<div class="card"><div class="list">
-      <button class="li" data-act="basketDisc">${I('percent')}<span class="grow"><span class="t">Discount whole sale</span><div class="s">Your limit: ${S.user.discountLimit}% without approval</div></span></button>
-      <button class="li" data-act="pickSalesperson">${I('users')}<span class="grow"><span class="t">Salesperson / split commission</span><div class="s">Currently ${(D.users.find((u) => u.id === S.cart.salesperson) || S.user).short}</div></span></button>
-      <button class="li" data-act="addGiftCard">${I('gift')}<span class="grow"><span class="t">Sell a gift card</span><div class="s">Activated through the payment terminal</div></span></button>
-      <button class="li" data-act="taxExempt">${I('credit')}<span class="grow"><span class="t">Tax exemption</span><div class="s">Certificate number, photo and manager approval</div></span></button>
-      <button class="li" data-act="voidSale">${I('x', 'style="color:var(--bad)"')}<span class="grow"><span class="t" style="color:var(--bad)">Void sale</span><div class="s">Clears all items. Recorded in the audit log.</div></span></button>
+      <button class="li" data-act="basketDisc"><span class="ic">${I('percent')}</span><span class="grow"><span class="t">Discount whole sale</span><div class="s">Your limit: ${S.user.discountLimit}% without approval</div></span></button>
+      <button class="li" data-act="pickSalesperson"><span class="ic">${I('users')}</span><span class="grow"><span class="t">Salesperson / split commission</span><div class="s">Currently ${(D.users.find((u) => u.id === S.cart.salesperson) || S.user).short}</div></span></button>
+      <button class="li" data-act="addGiftCard"><span class="ic">${I('gift')}</span><span class="grow"><span class="t">Sell a gift card</span><div class="s">Activated through the payment terminal</div></span></button>
+      <button class="li" data-act="taxExempt"><span class="ic">${I('credit')}</span><span class="grow"><span class="t">Tax exemption</span><div class="s">Certificate number, photo and manager approval</div></span></button>
+      <button class="li" data-act="voidSale"><span class="ic">${I('x')}</span><span class="grow"><span class="t" style="color:var(--bad)">Void sale</span><div class="s">Clears all items. Recorded in the audit log.</div></span></button>
     </div></div>`,
   });
   Object.assign(A, {
@@ -1171,11 +1175,11 @@ window.POS = window.POS || {};
       title: 'Return or exchange', sub: `${st.code} · ${st.returnDays}-day policy`,
       body: `<div class="search"><input class="input mono" id="ret-q" placeholder="Receipt number, e.g. ${st.code.slice(-3)}-02-004118" data-enter="retFind" aria-label="Receipt number">${I('receipt')}<button class="scan" data-act="retFind" aria-label="Scan receipt barcode">${I('scan')}</button></div>
         <section class="card"><div class="card-h"><h2>Find the original sale</h2></div><div class="list">
-          <button class="li" data-act="retFind">${I('scan')}<span class="grow"><span class="t">Scan receipt barcode or QR</span><div class="s">Works for receipts from the previous POS too</div></span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="retFind">${I('card')}<span class="grow"><span class="t">Customer's payment card</span><div class="s">Tap the card on the terminal to find recent sales</div></span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="retFind">${I('users')}<span class="grow"><span class="t">Customer profile</span><div class="s">Pick from their purchase history</div></span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="retFind">${I('box')}<span class="grow"><span class="t">Online order</span><div class="s">Return an e-commerce order in store</div></span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="retNone">${I('alert')}<span class="grow"><span class="t">No receipt</span><div class="s">Store credit only, manager approval</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retFind"><span class="ic">${I('scan')}</span><span class="grow"><span class="t">Scan receipt barcode or QR</span><div class="s">Works for receipts from the previous POS too</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retFind"><span class="ic">${I('card')}</span><span class="grow"><span class="t">Customer's payment card</span><div class="s">Tap the card on the terminal to find recent sales</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retFind"><span class="ic">${I('users')}</span><span class="grow"><span class="t">Customer profile</span><div class="s">Pick from their purchase history</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retFind"><span class="ic">${I('box')}</span><span class="grow"><span class="t">Online order</span><div class="s">Return an e-commerce order in store</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retNone"><span class="ic">${I('alert')}</span><span class="grow"><span class="t">No receipt</span><div class="s">Store credit only, manager approval</div></span>${I('chev', 'width="18" height="18"')}</button>
         </div></section>`,
     };
   };
@@ -1264,7 +1268,7 @@ window.POS = window.POS || {};
           <div class="g2"><button class="btn" data-act="cashMove" data-arg="in">${I('plus')}Paid in</button><button class="btn" data-act="cashMove" data-arg="out">${I('out')}Paid out</button>
           <button class="btn" data-act="cashMove" data-arg="pickup">${I('cash')}Cash pickup</button><button class="btn" data-act="noSale">${I('lock')}Open drawer</button></div></div></section>
         <section class="card"><div class="list">
-          <button class="li" data-act="sheet" data-arg="xReport">${I('receipt')}<span class="grow"><span class="t">X report</span><div class="s">Mid-day totals. Doesn't close anything.</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="sheet" data-arg="xReport"><span class="ic">${I('receipt')}</span><span class="grow"><span class="t">X report</span><div class="s">Mid-day totals. Doesn't close anything.</div></span>${I('chev', 'width="18" height="18"')}</button>
           <button class="li" data-act="go" data-arg="zclose" ${S.dayOpen ? '' : 'disabled'}>${I('lock')}<span class="grow"><span class="t">Count drawer & close day (Z)</span><div class="s">Blind count, over/short, posts totals to SAP${st.fiscal && st.country === 'DE' ? ', closes the TSE day' : ''}</div></span>${I('chev', 'width="18" height="18"')}</button>
         </div></section>`,
     };
@@ -1329,10 +1333,10 @@ window.POS = window.POS || {};
         <section class="card"><div class="card-b" style="padding-top:14px"><div class="row"><span class="avatar lg">${u.initials}</span><div class="grow"><b style="font-size:18px">${u.name}</b><div class="small muted">${u.role} · #${u.id}</div><div class="small muted">Discounts up to ${u.discountLimit}% without approval</div></div></div>
           <button class="btn" data-act="lock">${I('lock')}Lock & switch user</button></div></section>
         <section class="card"><div class="list">
-          <button class="li" data-act="go" data-arg="cash">${I('cash')}<span class="grow t">Cash & business day</span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="go" data-arg="orders">${I('box')}<span class="grow t">Orders to fulfil</span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="go" data-arg="parked">${I('pause')}<span class="grow t">Parked sales</span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="go" data-arg="returns">${I('ret')}<span class="grow t">Return or exchange</span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="go" data-arg="cash"><span class="ic">${I('cash')}</span><span class="grow t">Cash & business day</span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="go" data-arg="orders"><span class="ic">${I('box')}</span><span class="grow t">Orders to fulfil</span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="go" data-arg="parked"><span class="ic">${I('pause')}</span><span class="grow t">Parked sales</span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="go" data-arg="returns"><span class="ic">${I('ret')}</span><span class="grow t">Return or exchange</span>${I('chev', 'width="18" height="18"')}</button>
         </div></section>
         <section class="card"><div class="card-b" style="padding-top:14px">
           <label class="row">${POS.switch('more-train', S.training, 'Training mode', 'demoTraining')}<span class="grow"><b>Training mode</b><div class="small muted">Practise sales and returns. Nothing is charged, signed or posted.</div></span></label>
@@ -1345,8 +1349,8 @@ window.POS = window.POS || {};
           <dt>Queued transactions</dt><dd>${S.queued}</dd><dt>Last sync</dt><dd>${S.offline ? '09:40' : 'Just now'}</dd><dt>Offline catalogue</dt><dd>v8812 · 48,210 items</dd><dt>Receipt numbers left</dt><dd>882 reserved</dd><dt>Offline sign-in</dt><dd>PINs cached · 72 h</dd><dt>App version</dt><dd>4.12.1 (minimum 4.11.0)</dd></dl>
           <button class="btn" data-act="toast" data-arg="${S.offline ? 'No connection. Will retry automatically.' : 'Synced. Catalogue, prices and promotions up to date.'}">${I('sync')}Sync now</button></div></section>
         <section class="card"><div class="list">
-          <div class="li">${I('signal', 'width="20" height="20"')}<span class="grow"><span class="t">Language</span><div class="s">${st.locale} · receipts follow the customer’s language</div></span></div>
-          <button class="li" data-act="toast" data-arg="Opening the training library">${I('graduation', 'width="20" height="20"')}<span class="grow t">How-to videos & help</span>${I('chev', 'width="18" height="18"')}</button>
+          <div class="li"><span class="ic">${I('signal')}</span><span class="grow"><span class="t">Language</span><div class="s">${st.locale} · receipts follow the customer’s language</div></span></div>
+          <button class="li" data-act="toast" data-arg="Opening the training library"><span class="ic">${I('graduation')}</span><span class="grow t">How-to videos & help</span>${I('chev', 'width="18" height="18"')}</button>
         </div></section></div></div>`,
     };
   };

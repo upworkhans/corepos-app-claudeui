@@ -38,7 +38,7 @@ Sign in with any 4-digit PIN. Mia (Senior Associate) may give up to 10% off with
 
 ```
 index.html             stage, device frame and demo controls
-assets/styles.css      design tokens (light + dark) and components
+assets/styles.css      design tokens (light + dark), Square-style minimal components, Poppins
 assets/data.js         sample stores, users, catalogue, stock, customers, orders
 assets/app.js          state, cart and tax maths, rendering, navigation, icons
 assets/views-sell.js   sign-in, home, sell, products, customers, payment, receipt

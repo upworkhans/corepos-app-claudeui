@@ -49,7 +49,7 @@ window.POS = window.POS || {};
     signal: '<path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 4v16"/>',
     battery: '<rect x="2" y="7" width="18" height="10" rx="2"/><path d="M22 11v2M5 10h9v4H5z"/>',
   };
-  POS.icon = (n, attrs = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${attrs}>${P[n] || ''}</svg>`;
+  POS.icon = (n, attrs = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${attrs}>${P[n] || ''}</svg>`;
 
   /* Drawn product art, tinted by hue. */
   const ART = {
@@ -61,7 +61,7 @@ window.POS = window.POS || {};
     pen: '<path d="M70 14l16 16-46 46H24V60z" stroke-width="5"/><path d="M60 24l16 16M20 88h60"/>',
     card: '<rect x="12" y="24" width="76" height="52" rx="8" stroke-width="5"/><path d="M12 40h76M24 62h20"/><path d="M64 56l6 6 10-12"/>',
   };
-  POS.art = (p, cls = '') => `<div class="art ${cls}" style="--h:${p.hue}"><svg viewBox="0 0 100 100" fill="none" stroke="hsl(${p.hue} 45% 38%)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ART[p.art]}</svg></div>`;
+  POS.art = (p, cls = '') => `<div class="art ${cls}" style="--h:${p.hue}"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ART[p.art]}</svg></div>`;
 
   /* ---------- Formatting ---------- */
   POS.esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

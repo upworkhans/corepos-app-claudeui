@@ -33,11 +33,11 @@
       title: 'Return or exchange', sub: `${st.code} · ${st.returnDays}-day policy`,
       body: `<div class="search"><input class="input mono" id="ret-q" placeholder="Receipt number, e.g. ${st.code.slice(-3)}-02-004118" data-enter="retFind" aria-label="Receipt number">${I('receipt')}<button class="scan" data-act="retFind" aria-label="Scan receipt barcode">${I('scan')}</button></div>
         <section class="card"><div class="card-h"><h2>Find the original sale</h2></div><div class="list">
-          <button class="li" data-act="retFind">${I('scan')}<span class="grow"><span class="t">Scan receipt barcode or QR</span><div class="s">Works for receipts from the previous POS too</div></span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="retFind">${I('card')}<span class="grow"><span class="t">Customer's payment card</span><div class="s">Tap the card on the terminal to find recent sales</div></span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="retFind">${I('users')}<span class="grow"><span class="t">Customer profile</span><div class="s">Pick from their purchase history</div></span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="retFind">${I('box')}<span class="grow"><span class="t">Online order</span><div class="s">Return an e-commerce order in store</div></span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="retNone">${I('alert')}<span class="grow"><span class="t">No receipt</span><div class="s">Store credit only, manager approval</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retFind"><span class="ic">${I('scan')}</span><span class="grow"><span class="t">Scan receipt barcode or QR</span><div class="s">Works for receipts from the previous POS too</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retFind"><span class="ic">${I('card')}</span><span class="grow"><span class="t">Customer's payment card</span><div class="s">Tap the card on the terminal to find recent sales</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retFind"><span class="ic">${I('users')}</span><span class="grow"><span class="t">Customer profile</span><div class="s">Pick from their purchase history</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retFind"><span class="ic">${I('box')}</span><span class="grow"><span class="t">Online order</span><div class="s">Return an e-commerce order in store</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="retNone"><span class="ic">${I('alert')}</span><span class="grow"><span class="t">No receipt</span><div class="s">Store credit only, manager approval</div></span>${I('chev', 'width="18" height="18"')}</button>
         </div></section>`,
     };
   };
@@ -126,7 +126,7 @@
           <div class="g2"><button class="btn" data-act="cashMove" data-arg="in">${I('plus')}Paid in</button><button class="btn" data-act="cashMove" data-arg="out">${I('out')}Paid out</button>
           <button class="btn" data-act="cashMove" data-arg="pickup">${I('cash')}Cash pickup</button><button class="btn" data-act="noSale">${I('lock')}Open drawer</button></div></div></section>
         <section class="card"><div class="list">
-          <button class="li" data-act="sheet" data-arg="xReport">${I('receipt')}<span class="grow"><span class="t">X report</span><div class="s">Mid-day totals. Doesn't close anything.</div></span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="sheet" data-arg="xReport"><span class="ic">${I('receipt')}</span><span class="grow"><span class="t">X report</span><div class="s">Mid-day totals. Doesn't close anything.</div></span>${I('chev', 'width="18" height="18"')}</button>
           <button class="li" data-act="go" data-arg="zclose" ${S.dayOpen ? '' : 'disabled'}>${I('lock')}<span class="grow"><span class="t">Count drawer & close day (Z)</span><div class="s">Blind count, over/short, posts totals to SAP${st.fiscal && st.country === 'DE' ? ', closes the TSE day' : ''}</div></span>${I('chev', 'width="18" height="18"')}</button>
         </div></section>`,
     };
@@ -191,10 +191,10 @@
         <section class="card"><div class="card-b" style="padding-top:14px"><div class="row"><span class="avatar lg">${u.initials}</span><div class="grow"><b style="font-size:18px">${u.name}</b><div class="small muted">${u.role} · #${u.id}</div><div class="small muted">Discounts up to ${u.discountLimit}% without approval</div></div></div>
           <button class="btn" data-act="lock">${I('lock')}Lock & switch user</button></div></section>
         <section class="card"><div class="list">
-          <button class="li" data-act="go" data-arg="cash">${I('cash')}<span class="grow t">Cash & business day</span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="go" data-arg="orders">${I('box')}<span class="grow t">Orders to fulfil</span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="go" data-arg="parked">${I('pause')}<span class="grow t">Parked sales</span>${I('chev', 'width="18" height="18"')}</button>
-          <button class="li" data-act="go" data-arg="returns">${I('ret')}<span class="grow t">Return or exchange</span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="go" data-arg="cash"><span class="ic">${I('cash')}</span><span class="grow t">Cash & business day</span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="go" data-arg="orders"><span class="ic">${I('box')}</span><span class="grow t">Orders to fulfil</span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="go" data-arg="parked"><span class="ic">${I('pause')}</span><span class="grow t">Parked sales</span>${I('chev', 'width="18" height="18"')}</button>
+          <button class="li" data-act="go" data-arg="returns"><span class="ic">${I('ret')}</span><span class="grow t">Return or exchange</span>${I('chev', 'width="18" height="18"')}</button>
         </div></section>
         <section class="card"><div class="card-b" style="padding-top:14px">
           <label class="row">${POS.switch('more-train', S.training, 'Training mode', 'demoTraining')}<span class="grow"><b>Training mode</b><div class="small muted">Practise sales and returns. Nothing is charged, signed or posted.</div></span></label>
@@ -207,8 +207,8 @@
           <dt>Queued transactions</dt><dd>${S.queued}</dd><dt>Last sync</dt><dd>${S.offline ? '09:40' : 'Just now'}</dd><dt>Offline catalogue</dt><dd>v8812 · 48,210 items</dd><dt>Receipt numbers left</dt><dd>882 reserved</dd><dt>Offline sign-in</dt><dd>PINs cached · 72 h</dd><dt>App version</dt><dd>4.12.1 (minimum 4.11.0)</dd></dl>
           <button class="btn" data-act="toast" data-arg="${S.offline ? 'No connection. Will retry automatically.' : 'Synced. Catalogue, prices and promotions up to date.'}">${I('sync')}Sync now</button></div></section>
         <section class="card"><div class="list">
-          <div class="li">${I('signal', 'width="20" height="20"')}<span class="grow"><span class="t">Language</span><div class="s">${st.locale} · receipts follow the customer’s language</div></span></div>
-          <button class="li" data-act="toast" data-arg="Opening the training library">${I('graduation', 'width="20" height="20"')}<span class="grow t">How-to videos & help</span>${I('chev', 'width="18" height="18"')}</button>
+          <div class="li"><span class="ic">${I('signal')}</span><span class="grow"><span class="t">Language</span><div class="s">${st.locale} · receipts follow the customer’s language</div></span></div>
+          <button class="li" data-act="toast" data-arg="Opening the training library"><span class="ic">${I('graduation')}</span><span class="grow t">How-to videos & help</span>${I('chev', 'width="18" height="18"')}</button>
         </div></section></div></div>`,
     };
   };
